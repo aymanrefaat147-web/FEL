@@ -13,34 +13,39 @@
   </style>
   <style>
   .sofa-wrap{
-    max-width: 1100px;     /* كبّر/صغّر براحتك */
-    margin: 16px auto;     /* يوسّط في النص */
-    padding: 0;
+    max-width: 1100px;
+    margin: 16px auto;
+    padding: 0 8px; /* هامش خفيف في الموبايل */
   }
   .sofa-wrap iframe{
     width: 100% !important;
-    min-height: 720px;     /* زوّد لو محتاج طول أكبر */
+    height: 1300px;          /* طول كبير عشان المحتوى كامل، عدّله لو حابب */
     border: 0;
-    display: block;        /* يمنع الانحراف لليمين */
-    margin-inline: auto;   /* توسيط في RTL */
+    display: block;
+    margin-inline: auto;
     background: transparent;
   }
+  /* أطوال استجابية حسب العرض */
+  @media (min-width: 640px){ .sofa-wrap iframe{ height: 1100px; } }
+  @media (min-width: 1024px){ .sofa-wrap iframe{ height: 1000px; } }
+
   .sofa-attr{
     font: 12px/1.4 Arial, sans-serif;
     text-align: center;
     opacity: .8;
     margin-top: 6px;
   }
-  </style>
+</style>
 </head>
 <body class="min-h-screen selection:bg-emerald-600/30">
 <section class="sofa-wrap">
   <iframe
     id="sofa-standings-embed-38612-79317"
-    src="https://widgets.sofascore.com/embed/tournament/38612/season/79317/standings/Premier%20League%2025%2F26?widgetTitle=Premier%20League%2025%2F26&showCompetitionLogo=true&theme=dark&lang=ar"
+    src="https://widgets.sofascore.com/embed/tournament/38612/season/79317/standings/Premier%20League%2025%2F26?widgetTitle=Premier%20League%2025%2F26&showCompetitionLogo=true&widgetTheme=dark&language=ar"
     loading="lazy"
     referrerpolicy="no-referrer"
-    allowtransparency="true">
+    allowtransparency="true"
+    scrolling="yes">
   </iframe>
 
   <p class="sofa-attr">
@@ -49,9 +54,5 @@
        href="https://www.sofascore.com/ar/tournament/football/egypt/premier-league/808#id:79317">Sofascore</a>
   </p>
 </section>
-  </div>
-  
-</script>
-  <script src="https://widgets.365scores.com/main.js"></script>
 </body>
 </html>
