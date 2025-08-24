@@ -37,22 +37,117 @@
   }
 </style>
 </head>
-<body class="min-h-screen selection:bg-emerald-600/30">
-<section class="sofa-wrap">
-  <iframe
-    id="sofa-standings-embed-38612-79317"
-    src="https://widgets.sofascore.com/embed/tournament/38612/season/79317/standings/Premier%20League%2025%2F26?widgetTitle=Premier%20League%2025%2F26&showCompetitionLogo=true&widgetTheme=dark&language=ar"
-    loading="lazy"
-    referrerpolicy="no-referrer"
-    allowtransparency="true"
-    scrolling="yes">
-  </iframe>
+<body class="min-h-screen bg-[#07090B] text-white">
+  <!-- هيدر بثلاث مستطيلات -->
+  <header class="sticky top-0 z-20 bg-[#07090B]/80 backdrop-blur border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-4">
+      <div class="grid grid-cols-3 gap-3">
+        <!-- الدوري (نشط) -->
+        <a href="matches.html"
+           class="glass ring rounded-2xl p-4 text-center font-bold border border-emerald-500/40">
+          الدوري
+        </a>
+        <!-- عدّل اللينكين دول حسب صفحاتك -->
+        <a href="loby.html"
+           class="glass ring rounded-2xl p-4 text-center font-bold hover:border-slate-500/50 border border-transparent">
+          الفانتزي
+        </a>
+        <a href="#"
+           class="glass ring rounded-2xl p-4 text-center font-bold hover:border-slate-500/50 border border-transparent">
+          آخر الأخبار
+        </a>
+      </div>
 
-  <p class="sofa-attr">
-    الترتيب مقدم من
-    <a target="_blank" rel="noopener"
-       href="https://www.sofascore.com/ar/tournament/football/egypt/premier-league/808#id:79317">Sofascore</a>
-  </p>
-</section>
+      <!-- تبويبات تحت الهيدر -->
+      <div class="mt-4 flex gap-2">
+        <button data-target="standings"
+                class="tab-btn px-4 py-2 rounded-xl ring ring-slate-700/40 bg-emerald-600/20 border border-emerald-500/40">
+          ترتيب الدوري
+        </button>
+        <button data-target="matches"
+                class="tab-btn px-4 py-2 rounded-xl ring ring-slate-700/40 hover:bg-white/5 border border-transparent">
+          المباريات
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- المحتوى -->
+  <main class="max-w-6xl mx-auto px-4 py-6">
+
+    <!-- تبويب ترتيب الدوري (افتراضي: ظاهر) -->
+    <section id="standings" class="rounded-2xl ring overflow-hidden">
+      <iframe
+        id="sofa-standings"
+        src="https://widgets.sofascore.com/embed/tournament/38612/season/79317/standings/Premier%20League%2025%2F26?widgetTitle=Premier%20League%2025%2F26&showCompetitionLogo=true&widgetTheme=dark&language=ar"
+        style="width:100%;min-height:1100px;border:0;display:block;background:transparent"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+        allowtransparency="true">
+      </iframe>
+    </section>
+
+    <!-- تبويب المباريات (افتراضي: مخفي) -->
+    <section id="matches" class="hidden mt-6">
+      <section class="rounded-2xl ring glass p-0 overflow-hidden">
+        <div
+          data-widget-type="entityScores"
+          data-entity-type="league"
+          data-entity-id="552"
+          data-lang="ar"
+          data-widget-id="54d5f0f7-a3b4-453c-80c6-14fd5907d82a"
+          data-theme="dark">
+        </div>
+      </section>
+
+      <div id="powered-by" class="text-[12px] text-slate-400 mt-3">
+        مزود من
+        <a id="powered-by-link" href="https://www.365scores.com/ar" target="_blank" class="underline hover:text-slate-200">365Scores.com</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ستايلات بسيطة -->
+  <style>
+    .ring{box-shadow:0 0 0 1px rgba(148,163,184,.2) inset}
+    .glass{background:rgba(15,23,42,.6);backdrop-filter:blur(8px)}
+  </style>
+
+  <!-- تبديل التبويبات -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const sections = {
+        standings: document.getElementById('standings'),
+        matches: document.getElementById('matches'),
+      };
+
+      function activate(name){
+        // أظهر المطلوب و اخفي الباقي
+        Object.entries(sections).forEach(([key, el])=>{
+          if(key === name){ el.classList.remove('hidden'); }
+          else { el.classList.add('hidden'); }
+        });
+
+        // فعّل ستايل الزر
+        tabs.forEach(btn=>{
+          const on = btn.dataset.target === name;
+          btn.classList.toggle('bg-emerald-600/20', on);
+          btn.classList.toggle('border', true);
+          btn.classList.toggle('border-emerald-500/40', on);
+          btn.classList.toggle('border-transparent', !on);
+        });
+      }
+
+      tabs.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.target)));
+
+      // الافتراضي: ترتيب الدوري
+      activate('standings');
+    });
+  </script>
+
+  <!-- سكربت 365Scores عشان الودجت يشتغل -->
+  <script src="https://widgets.365scores.com/main.js"></script>
 </body>
 </html>
