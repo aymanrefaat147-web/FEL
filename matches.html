@@ -55,7 +55,23 @@
     </div>
 
     <!-- قائمة المباريات -->
-    <div id="fixtures" class="grid gap-3"></div>
+  <!-- 365Scores widget -->
+<section class="rounded-2xl ring glass p-0 overflow-hidden">
+  <div
+    data-widget-type="entityScores"
+    data-entity-type="league"
+    data-entity-id="552"
+    data-lang="ar"
+    data-widget-id="54d5f0f7-a3b4-453c-80c6-14fd5907d82a"
+    data-theme="dark">
+  </div>
+</section>
+
+<!-- Powered by -->
+<div id="powered-by" class="text-[12px] text-slate-400 mt-3">
+  مزود من
+  <a id="powered-by-link" href="https://www.365scores.com/ar" target="_blank" class="underline hover:text-slate-200">365Scores.com</a>
+</div>
   </main>
 <script>
 const API_BASE = '/.netlify/functions/apifootball';
@@ -181,8 +197,8 @@ async function getEgyptLeagueAndSeason() {
     }
   }
 
-  boot();
-setInterval(boot, 60000);
+  
 </script>
+  <script src="https://widgets.365scores.com/main.js"></script>
 </body>
 </html>
