@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>الدوري والمباريات — Fantasy Egypt Pro</title>
+  <title>League & Matches — Fantasy Egypt Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html,body{margin:0;padding:0}
@@ -11,72 +11,70 @@
     .ring{box-shadow:0 0 0 1px rgba(148,163,184,.18) inset}
     .glass{background:rgba(15,23,42,.6);backdrop-filter:blur(8px)}
     .btn-tab{transition:all .2s ease}
-    .btn-tab.active{background:#065f46; box-shadow:0 0 0 1px #10b981 inset}
-    /* غلاف الودجت LTR عشان التخطيط يبقى سليم */
-    .widget-wrap{direction:ltr;text-align:left;overflow-x:auto}
     .powered-by{font:12px/1.4 Arial,sans-serif;opacity:.75;text-align:center;margin-top:.5rem}
+    .widget-wrap{direction:ltr;text-align:left;overflow-x:auto}
   </style>
 </head>
 
 <body class="min-h-screen">
   <main class="max-w-5xl mx-auto px-4 py-6">
-    <!-- الهيدر -->
+    <!-- Header -->
     <header class="mb-6">
       <nav class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <a href="matches.html"
-           class="btn-tab active text-center rounded-2xl ring glass py-3 font-medium">الدوري</a>
-        <a href="loby.html"  class="btn-tab text-center rounded-2xl ring glass py-3 font-medium">الفانتزي</a>
-        <a href="news.html"  class="btn-tab text-center rounded-2xl ring glass py-3 font-medium">آخر الأخبار</a>
+           class="btn-tab text-center rounded-2xl ring glass py-3 font-medium bg-emerald-700 text-white">League</a>
+        <a href="loby.html"  class="btn-tab text-center rounded-2xl ring glass py-3 font-medium">Fantasy</a>
+        <a href="news.html"  class="btn-tab text-center rounded-2xl ring glass py-3 font-medium">News</a>
       </nav>
     </header>
 
-    <!-- سويتش داخلي: ترتيب الدوري / المباريات -->
+    <!-- Tabs: Standings / Matches -->
     <div class="flex gap-3 mb-4">
-      <button id="btn-stand" class="rounded-xl px-4 py-2 bg-emerald-700 text-white">ترتيب الدوري</button>
-      <button id="btn-match"  class="rounded-xl px-4 py-2 ring glass">المباريات</button>
+      <button id="btn-stand" class="rounded-xl px-4 py-2 bg-emerald-700 text-white">Standings</button>
+      <button id="btn-match"  class="rounded-xl px-4 py-2 ring glass">Matches</button>
     </div>
 
-    <!-- ترتيب الدوري (افتراضي) -->
+    <!-- Standings (default) -->
     <section id="tab-standings" class="rounded-2xl ring glass p-4">
       <div class="widget-wrap">
         <div
           data-widget-type="entityStandings"
           data-entity-type="league"
           data-entity-id="552"
-          data-lang="ar"
+          data-lang="en"
           data-widget-id="7f24cee8-aadb-4045-9bee-959934e8713f"
           data-theme="dark">
         </div>
       </div>
       <p class="powered-by">
-        مقدم بواسطة
-        <a class="underline" target="_blank" rel="noopener" href="https://www.365scores.com/ar">365Scores.com</a>
+        Powered by
+        <a class="underline" target="_blank" rel="noopener" href="https://www.365scores.com">365Scores.com</a>
       </p>
     </section>
 
-    <!-- المباريات -->
+    <!-- Matches -->
     <section id="tab-matches" class="hidden rounded-2xl ring glass p-4">
       <div class="widget-wrap">
         <div
           data-widget-type="entityScores"
           data-entity-type="league"
           data-entity-id="552"
-          data-lang="ar"
+          data-lang="en"
           data-widget-id="22c20214-75ff-422d-9dd4-abe088a5202e"
           data-theme="dark">
         </div>
       </div>
       <p class="powered-by">
-        مقدم بواسطة
-        <a class="underline" target="_blank" rel="noopener" href="https://www.365scores.com/ar">365Scores.com</a>
+        Powered by
+        <a class="underline" target="_blank" rel="noopener" href="https://www.365scores.com">365Scores.com</a>
       </p>
     </section>
   </main>
 
-  <!-- سكربت الودجت (مرة واحدة فقط) -->
+  <!-- Load 365Scores script ONCE -->
   <script src="https://widgets.365scores.com/main.js"></script>
 
-  <!-- سويتش التبويب الداخلي -->
+  <!-- Tab switcher -->
   <script>
     const btnStand = document.getElementById('btn-stand');
     const btnMatch = document.getElementById('btn-match');
@@ -98,7 +96,6 @@
       btnMatch.classList.toggle('ring', isStand);
       btnMatch.classList.toggle('glass', isStand);
 
-      // سكرول خفيف للبداية
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
