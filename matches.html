@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=no" />
-  <title>الدوري — Fantasy Egypt Pro</title>
-  <!-- Tailwind -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=no"/>
+  <title>المباريات — Fantasy Egypt Pro</title>
+
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -12,127 +13,105 @@
     body{background:#07090B;color:#fff}
     .ring{box-shadow:0 0 0 1px rgba(148,163,184,.2) inset}
     .glass{background:rgba(15,23,42,.6);backdrop-filter:blur(8px)}
-    .powered-by{font-size:12px;color:#94a3b8;margin-top:.5rem}
-    .powered-by a{margin-inline-start:.4rem;text-decoration:underline}
-    /* ثبّت اتجاه ودجت 365Scores على LTR */
-.widget-wrap{
-  direction: ltr;
-  text-align: left;
-  overflow-x: auto;   /* احتياطي لو المحتوى عريض */
-}
+
+    /* مهم: خلي ودجت 365Scores LTR عشان مايبوظش في RTL */
+    .widget-wrap{direction:ltr;text-align:left;overflow-x:auto}
+    .powered-by{font:12px/1.4 Arial,sans-serif;opacity:.75;text-align:center;margin-top:.5rem}
   </style>
 </head>
-
 <body class="min-h-screen selection:bg-emerald-600/30">
 
-  <!-- الهيدر (3 مستطيلات) -->
-  <header class="sticky top-0 z-20 bg-[#07090B]/80 backdrop-blur border-b border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 py-4">
-      <div class="grid grid-cols-3 gap-3">
-        <!-- الدوري (نشط) -->
-        <a href="matches.html"
-           class="glass ring rounded-2xl p-4 text-center font-bold border border-emerald-500/40">
-          الدوري
-        </a>
-        <!-- غيّر الرابط حسب صفحتك -->
-        <a href="loby.html"
-           class="glass ring rounded-2xl p-4 text-center font-bold hover:border-slate-500/50 border border-transparent">
-          الفانتزي
-        </a>
-        <a href="#"
-           class="glass ring rounded-2xl p-4 text-center font-bold hover:border-slate-500/50 border border-transparent">
-          آخر الأخبار
-        </a>
-      </div>
+  <!-- حاوية الصفحة -->
+  <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
-      <!-- تبويبات المحتوى -->
-      <div class="mt-4 flex gap-2">
-        <button data-target="standings"
-                class="tab-btn px-4 py-2 rounded-xl ring ring-slate-700/40 bg-emerald-600/20 border border-emerald-500/40">
-          ترتيب الدوري
-        </button>
-        <button data-target="matches"
-                class="tab-btn px-4 py-2 rounded-xl ring ring-slate-700/40 hover:bg-white/5 border border-transparent">
-          المباريات
-        </button>
-      </div>
+    <!-- الهيدر: الدوري / الفانتزي / آخر الأخبار -->
+    <nav class="grid grid-cols-3 gap-3">
+      <!-- غيّر الروابط تحت حسب أسماء ملفاتك -->
+      <a href="news.html"
+         class="ring glass rounded-2xl py-3 text-center text-lg hover:ring-emerald-500/50 transition">آخر الأخبار</a>
+
+      <a href="loby.html"
+         class="ring glass rounded-2xl py-3 text-center text-lg hover:ring-emerald-500/50 transition">الفانتزي</a>
+
+      <a href="matches.html"
+         class="ring glass rounded-2xl py-3 text-center text-lg bg-emerald-600/20 ring-emerald-500/50">الدوري</a>
+    </nav>
+
+    <!-- التاب بار: ترتيب الدوري / المباريات -->
+    <div class="flex items-center gap-3">
+      <button id="btn-standings"
+              class="px-4 py-2 rounded-xl ring ring-emerald-500/50 bg-emerald-600/20">
+        ترتيب الدوري
+      </button>
+      <button id="btn-matches"
+              class="px-4 py-2 rounded-xl ring glass hover:ring-emerald-500/50">
+        المباريات
+      </button>
     </div>
-  </header>
 
-  <!-- المحتوى -->
-  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-
-    <!-- ترتيب الدوري (افتراضي ظاهر) -->
-    <section id="standings" class="rounded-2xl ring glass p-4">
-  <div class="widget-wrap">
-    <div
-      data-widget-type="entityStandings"
-      data-entity-type="league"
-      data-entity-id="552"
-      data-lang="en"
-      data-widget-id="7f24cee8-aadb-4045-9bee-959934e8713f"
-      data-theme="dark">
-    </div>
-  </div>
-
-      <div class="powered-by">
-        Powered by
-        <a id="powered-by-link-standings" href="https://www.365scores.com" target="_blank" rel="noopener">365Scores.com</a>
+    <!-- تبويب: ترتيب الدوري (افتراضي) -->
+    <section id="tab-standings" class="rounded-2xl ring glass p-4">
+      <div class="widget-wrap">
+        <div
+          data-widget-type="entityStandings"
+          data-entity-type="league"
+          data-entity-id="552"
+          data-lang="en"              <!-- سيبه en عشان الودجت يشتغل LTR بدون مشاكل -->
+          data-widget-id="7f24cee8-aadb-4045-9bee-959934e8713f"
+          data-theme="dark">
+        </div>
       </div>
+      <p class="powered-by">
+        مقدم بواسطة
+        <a class="underline" target="_blank" rel="noopener"
+           href="https://www.365scores.com">365Scores.com</a>
+      </p>
     </section>
 
-    <!-- المباريات (افتراضي مخفي) -->
-    <section id="matches" class="hidden rounded-2xl ring glass p-4">
-      <!-- 365Scores: Matches -->
-      <div
-        data-widget-type="entityScores"
-        data-entity-type="league"
-        data-entity-id="552"
-        data-lang="en"
-        data-widget-id="22c20214-75ff-422d-9dd4-abe088a5202e"
-        data-theme="dark">
+    <!-- تبويب: المباريات (مخفي افتراضياً) -->
+    <section id="tab-matches" class="hidden rounded-2xl ring glass p-4">
+      <div class="widget-wrap">
+        <div
+          data-widget-type="entityScores"
+          data-entity-type="league"
+          data-entity-id="552"
+          data-lang="en"
+          data-widget-id="22c20214-75ff-422d-9dd4-abe088a5202e"
+          data-theme="dark">
+        </div>
       </div>
-
-      <div class="powered-by">
-        Powered by
-        <a id="powered-by-link-scores" href="https://www.365scores.com" target="_blank" rel="noopener">365Scores.com</a>
-      </div>
+      <p class="powered-by">
+        مقدم بواسطة
+        <a class="underline" target="_blank" rel="noopener"
+           href="https://www.365scores.com">365Scores.com</a>
+      </p>
     </section>
 
   </main>
 
-  <!-- تبديل التبويبات -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const tabs = document.querySelectorAll('.tab-btn');
-      const sections = {
-        standings: document.getElementById('standings'),
-        matches: document.getElementById('matches'),
-      };
-
-      function activate(name){
-        Object.entries(sections).forEach(([key, el])=>{
-          if(key === name){ el.classList.remove('hidden'); }
-          else { el.classList.add('hidden'); }
-        });
-
-        tabs.forEach(btn=>{
-          const on = btn.dataset.target === name;
-          btn.classList.toggle('bg-emerald-600/20', on);
-          btn.classList.toggle('border-emerald-500/40', on);
-          btn.classList.toggle('border', true);
-          btn.classList.toggle('border-transparent', !on);
-        });
-      }
-
-      tabs.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.target)));
-
-      // الافتراضي: ترتيب الدوري
-      activate('standings');
-    });
-  </script>
-
-  <!-- سكربت 365Scores (مرة واحدة فقط) -->
+  <!-- سكربت الودجت (مرّة واحدة فقط) -->
   <script src="https://widgets.365scores.com/main.js"></script>
+
+  <!-- تبديل التابات -->
+  <script>
+    const btnStand = document.getElementById('btn-standings');
+    const btnMatch = document.getElementById('btn-matches');
+    const tabStand = document.getElementById('tab-standings');
+    const tabMatch = document.getElementById('tab-matches');
+
+    function activate(btnOn, btnOff, tabOn, tabOff){
+      btnOn.classList.add('bg-emerald-600/20','ring-emerald-500/50');
+      btnOn.classList.remove('glass');
+      btnOff.classList.remove('bg-emerald-600/20','ring-emerald-500/50');
+      btnOff.classList.add('glass');
+      tabOn.classList.remove('hidden');
+      tabOff.classList.add('hidden');
+      // اختياري: لفوق شوية عشان المستخدم يشوف بداية المحتوى
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    btnStand.addEventListener('click', () => activate(btnStand, btnMatch, tabStand, tabMatch));
+    btnMatch.addEventListener('click', () => activate(btnMatch, btnStand, tabMatch, tabStand));
+  </script>
 </body>
-        </html>
+</html>
