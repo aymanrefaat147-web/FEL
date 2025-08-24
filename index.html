@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0a1730">
+
+<!-- iOS PWA tweaks -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FEL">
+<link rel="apple-touch-icon" href="/icons/fel-192.png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+  <title>Fantasy Egypt Pro — الدوري المصري</title>
+  <meta name="description" content="منصة فانتزي للدوري المصري — تشكيلات، نقاط، دوريات خاصة، ونظام مرن للجولات.">
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background:#07090B; color:#fff; }
+    .glass { background: rgba(15,23,42,.6); backdrop-filter: none !important; } /* بلا بلور */
+    .ring  { box-shadow: 0 0 0 1px rgba(148,163,184,.2) inset; }
+    .mesh-a { position:absolute; inset:0; pointer-events:none; z-index:-1; }
+    input,button { font-size:16px; } html{-webkit-text-size-adjust:100%;}
+  </style>
+</head>
+<body class="selection:bg-emerald-600/30 min-h-screen">
+  <!-- خلفيات -->
+  <div class="mesh-a">
+    <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-emerald-700/20"></div>
+    <div class="absolute top-48 right-0 h-72 w-72 rounded-full bg-teal-700/20"></div>
+    <div class="absolute bottom-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-sky-600/10 blur-3xl"></div>
+  </div>
+
+  <!-- Navbar -->
+  <header class="sticky top-0 z-40 bg-[#0B1220] border-b border-white/10">
+    <div class="mx-auto max-w-7xl px-4">
+      <div class="relative flex h-16 items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl grid place-items-center ring" style="background: rgba(16,185,129,.15)">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 21h8m-4-4v4m7-16h2v3a5 5 0 01-5 5h-1.5A3.5 3.5 0 0111 9.5V5h2v4.5m-6 0A3.5 3.5 0 0010.5 13H9A5 5 0 014 8V5h2"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400">الدوري المصري — Fantasy</p>
+            <h1 class="text-lg font-semibold tracking-tight">Fantasy Egypt Pro</h1>
+          </div>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300">
+          <a class="hover:text-white" href="#features">المزايا</a>
+          <a class="hover:text-white" href="#how">إزاي تشتغل</a>
+          <a class="hover:text-white" href="#screens">لقطات</a>
+          <a class="hover:text-white" href="#faq">أسئلة شائعة</a>
+          <a href="#cta" class="rounded-xl bg-emerald-500 px-4 py-2 font-semibold text-black hover:bg-emerald-400">جرّب المنصّة</a>
+        </nav>
+
+        <button id="menuBtn" class="md:hidden inline-flex items-center justify-center rounded-xl ring bg-white/5 p-2" aria-label="فتح القائمة">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- قائمة الموبايل بنفس خلفية الهيدر -->
+    <div id="mobileNav" class="hidden md:hidden bg-[#0B1220] border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-4 text-sm text-slate-200">
+        <a href="#features" class="py-1">المزايا</a>
+        <a href="#how" class="py-1">إزاي تشتغل</a>
+        <a href="#screens" class="py-1">لقطات</a>
+        <a href="#faq" class="py-1">أسئلة شائعة</a>
+        <a href="#cta" class="rounded-xl bg-emerald-500 px-4 py-2 font-semibold text-black text-center">جرّب المنصّة</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="mx-auto max-w-7xl px-4 pt-14 md:pt-24">
+    <div class="grid gap-10 md:grid-cols-2 items-start">
+      <!-- العمود اليمين: العنوان + الأزرار -->
+      <div>
+        <h2 class="mt-4 text-4xl md:text-5xl font-extrabold leading-tight">
+          فانتزي <span class="text-emerald-400">الدوري المصري</span>… جاهزة على موبايلك
+        </h2>
+        <p class="mt-4 text-slate-300 leading-relaxed">فانتزي الدوري المصري دلوقتي بقا متاح و تقدر تستمتع بيه!!</p>
+
+        <div class="mt-6 flex flex-wrap items-center gap-3" id="cta">
+          <!-- إنشاء حساب -->
+          <button id="open-signup"
+                  class="rounded-2xl bg-emerald-500 px-5 py-3 font-semibold text-black hover:bg-emerald-400">
+            سجّل و العب دلوقتي
+          </button>
+          <!-- تسجيل الدخول -->
+          <button id="open-login"
+                  class="rounded-2xl ring px-5 py-3 font-semibold hover:bg-slate-900">
+            تسجيل الدخول
+          </button>
+        </div>
+      </div>
+
+      <!-- العمود الشمال: الكارت -->
+      <div class="relative">
+        <div class="rounded-3xl ring glass p-6 shadow-2xl">
+          <div class="rounded-2xl ring bg-slate-950 p-4">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span>الجولة 3</span>
+              <span class="inline-flex items-center gap-1">⏱ 01:12:33</span>
+            </div>
+            <div class="mt-3 grid grid-cols-2 gap-3">
+              <div class="rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 p-3 ring">
+                <p class="text-xs text-slate-300">البنك</p>
+                <p class="text-lg font-bold">100M</p>
+              </div>
+              <div class="rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 p-3 ring">
+                <p class="text-xs text-slate-300">النقاط</p>
+                <p class="text-lg font-bold">67</p>
+              </div>
+            </div>
+            <div class="mt-3 grid grid-cols-4 gap-2 text-xs">
+              <div class="rounded-lg ring glass p-2 text-center">حارس</div>
+              <div class="rounded-lg ring glass p-2 text-center">دفاع</div>
+              <div class="rounded-lg ring glass p-2 text-center">وسط</div>
+              <div class="rounded-lg ring glass p-2 text-center">هجوم</div>
+            </div>
+            <div class="mt-3 rounded-xl ring p-3 text-xs text-slate-300">
+              * لقطة واجهة للتوضيح فقط – البيانات حقيقية عند التوصيل بمزوّد.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- شريط المزايا كصف كامل تحت العمودين -->
+      <div class="md:col-span-2">
+        <div class="mt-6 grid grid-cols-3 gap-3 text-center text-xs text-slate-300">
+          <div class="rounded-2xl ring glass p-3">📈 <p class="mt-1">نقاط مباشرة</p></div>
+          <div class="rounded-2xl ring glass p-3">🌍 <p class="mt-1">دوريات خاصة</p></div>
+          <div class="rounded-2xl ring glass p-3">🔒 <p class="mt-1">قفل قبل الجولة</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How -->
+  <section id="how" class="mx-auto max-w-7xl px-4 py-6 md:py-2 mt-3">
+    <div class="rounded-3xl ring glass p-6 md:p-10">
+      <h3 class="text-2xl font-bold">إزاي تشتغل المنصة؟</h3>
+      <div class="mt-6 grid gap-4 md:grid-cols-4 text-sm">
+        <div class="rounded-2xl ring bg-slate-950 p-4">
+          <div class="flex items-center justify-between"><span class="text-xs text-slate-400">الخطوة</span><span class="text-emerald-400 font-bold">1</span></div>
+          <h4 class="mt-2 font-semibold">سجّل حساب</h4>
+          <p class="text-slate-300 mt-1">بالبريد أو Google</p>
+        </div>
+        <div class="rounded-2xl ring bg-slate-950 p-4">
+          <div class="flex items-center justify-between"><span class="text-xs text-slate-400">الخطوة</span><span class="text-emerald-400 font-bold">2</span></div>
+          <h4 class="mt-2 font-semibold">كوّن فريقك</h4>
+          <p class="text-slate-300 mt-1">15 لاعب بميزانية 100M</p>
+        </div>
+        <div class="rounded-2xl ring bg-slate-950 p-4">
+          <div class="flex items-center justify-between"><span class="text-xs text-slate-400">الخطوة</span><span class="text-emerald-400 font-bold">3</span></div>
+          <h4 class="mt-2 font-semibold">اقفل التشكيلة</h4>
+          <p class="text-slate-300 mt-1">قبل أول مباراة بالجولة</p>
+        </div>
+        <div class="rounded-2xl ring bg-slate-950 p-4">
+          <div class="flex items-center justify-between"><span class="text-xs text-slate-400">الخطوة</span><span class="text-emerald-400 font-bold">4</span></div>
+          <h4 class="mt-2 font-semibold">نافِس واكسب</h4>
+          <p class="text-slate-300 mt-1">نقاط فورية وترتيب دوري</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Email -->
+  <section class="mx-auto max-w-7xl px-4 py-10">
+    <div class="rounded-3xl ring p-6 md:p-10" style="background:linear-gradient(135deg, rgba(16,185,129,.1), rgba(13,148,136,.1));">
+      <div class="grid gap-6 md:grid-cols-2 items-center">
+        <div><h3 class="text-2xl font-bold">لو عندك أي استفسار سيب إيميلك و هنتواصل معاك</h3></div>
+        <div>
+          <form id="signup-form" class="flex flex-col sm:flex-row items-stretch gap-3 w-full" onsubmit="return handleSignup(event)">
+            <input id="email" type="email" placeholder="اكتب الإيميل هنا" class="w-full px-4 py-3 rounded-2xl bg-slate-900/70 border border-slate-700 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"/>
+            <button type="submit" class="px-5 py-3 rounded-2xl bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition shrink-0">سجّل</button>
+          </form>
+          <p id="email-error" class="hidden mt-2 text-xs text-red-400">لازم تكتب إيميلك الأول</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="mx-auto max-w-7xl px-4 py-14">
+    <h3 class="text-2xl font-bold">أسئلة شائعة</h3>
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <details class="group rounded-2xl ring bg-slate-950 p-4 open:bg-slate-900">
+        <summary class="cursor-pointer select-none list-none font-medium text-slate-100">هل المنصّة مجانية؟</summary>
+        <p class="mt-2 text-sm text-slate-300">المنصة مجانية بالكامل!</p>
+      </details>
+      <details class="group rounded-2xl ring bg-slate-950 p-4 open:bg-slate-900">
+        <summary class="cursor-pointer select-none list-none font-medium text-slate-100">إزاي بتحسبوا النقاط؟</summary>
+        <p class="mt-2 text-sm text-slate-300">نظام قريب من FPL: دقائق، أهداف، أسيست، شباك نظيفة، بطاقات… إلخ.</p>
+      </details>
+      <details class="group rounded-2xl ring bg-slate-950 p-4 open:bg-slate-900">
+        <summary class="cursor-pointer select-none list-none font-medium text-slate-100">هل في بيانات مباشرة؟</summary>
+        <p class="mt-2 text-sm text-slate-300">نحدّث النقاط فور نهاية المباراة حسب المزوّد والترخيص.</p>
+      </details>
+      <details class="group rounded-2xl ring bg-slate-950 p-4 open:bg-slate-900">
+        <summary class="cursor-pointer select-none list-none font-medium text-slate-100">الجولات مش ثابتة؟</summary>
+        <p class="mt-2 text-sm text-slate-300">مصمّمة مرنة: الأدمن يعرّف الجولات حسب جدول الرابطة مهما اتغيّر.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="mx-auto max-w-7xl px-4 py-10 text-slate-400 text-sm">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <p>powered by: AYMAN REFAAT</p>
+      <p class="text-xs">© <span id="yr"></span> Fantasy Egypt Pro</p>
+    </div>
+  </footer>
+
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="fixed inset-0 z-50 hidden">
+    <div id="signup-overlay" class="absolute inset-0 bg-black/60"></div>
+    <div class="relative mx-auto my-10 max-w-md rounded-3xl glass ring p-6 md:p-8">
+      <button id="close-signup" class="absolute top-3 left-3 text-slate-400 hover:text-white" aria-label="إغلاق">✕</button>
+      <h3 class="text-2xl font-bold">إنشاء حساب</h3>
+      <p class="text-slate-300 text-sm mt-1">سجّل علشان تبدأ تكوّن فريقك وتنافس صحابك.</p>
+      <form id="reg-form" class="mt-4 space-y-4" novalidate>
+        <div>
+          <label for="reg-name" class="block text-sm mb-1">الاسم</label>
+          <input id="reg-name" type="text" class="w-full px-4 py-3 rounded-2xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[48px]" />
+          <p id="err-name" class="hidden mt-1 text-xs text-red-400">اكتب اسمك.</p>
+        </div>
+        <div>
+          <label for="reg-email" class="block text-sm mb-1">البريد الإلكتروني</label>
+          <input id="reg-email" type="email" inputmode="email" autocomplete="email" class="w-full px-4 py-3 rounded-2xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[48px]" />
+          <p id="err-email" class="hidden mt-1 text-xs text-red-400">اكتب بريد إلكتروني صحيح.</p>
+        </div>
+        <div>
+          <label for="reg-pass" class="block text-sm mb-1">كلمة المرور</label>
+          <input id="reg-pass" type="password" autocomplete="new-password" class="w-full px-4 py-3 rounded-2xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[48px]" />
+          <p id="err-pass" class="hidden mt-1 text-xs text-red-400">لازم تكون 6 أحرف على الأقل.</p>
+        </div>
+        <div>
+          <label for="reg-pass2" class="block text-sm mb-1">تأكيد كلمة المرور</label>
+          <input id="reg-pass2" type="password" autocomplete="new-password" class="w-full px-4 py-3 rounded-2xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[48px]" />
+          <p id="err-pass2" class="hidden mt-1 text-xs text-red-400">كلمتا المرور غير متطابقتين.</p>
+        </div>
+        <div class="flex items-start gap-2">
+          <input id="reg-terms" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-900" />
+          <label for="reg-terms" class="text-sm text-slate-300">أوافق على الشروط وسياسة الخصوصية</label>
+        </div>
+        <p id="err-terms" class="hidden -mt-2 text-xs text-red-400">لازم توافق على الشروط.</p>
+        <button type="submit" class="w-full px-5 py-3 rounded-2xl bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition min-h-[48px]">إنشاء الحساب</button>
+      </form>
+      <p id="reg-ok" class="hidden mt-3 text-sm text-emerald-300">تم إنشاء الحساب! هنتواصل معاك في أقرب وقت ممكن ✅</p>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="fixed inset-0 z-50 hidden">
+    <div id="login-overlay" class="absolute inset-0 bg-black/60"></div>
+    <div class="relative mx-auto my-10 max-w-md rounded-3xl glass ring p-6 md:p-8">
+      <button id="close-login" class="absolute top-3 left-3 text-slate-400 hover:text-white" aria-label="إغلاق">✕</button>
+      <h3 class="text-2xl font-bold">تسجيل الدخول</h3>
+      <p class="text-slate-300 text-sm mt-1">ادخل على حسابك وكمّل لعب.</p>
+      <form id="login-form" class="mt-4 space-y-4" novalidate>
+        <div>
+          <label for="login-email" class="block text-sm mb-1">البريد الإلكتروني</label>
+          <input id="login-email" type="email" autocomplete="email"
+                 class="w-full px-4 py-3 rounded-2xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[48px]" />
+          <p id="login-err-email" class="hidden mt-1 text-xs text-red-400">اكتب بريد إلكتروني صحيح.</p>
+        </div>
+        <div>
+          <label for="login-pass" class="block text-sm mb-1">كلمة المرور</label>
+          <input id="login-pass" type="password" autocomplete="current-password"
+                 class="w-full px-4 py-3 rounded-2xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[48px]" />
+          <p id="login-err-pass" class="hidden mt-1 text-xs text-red-400">لازم تكون 6 أحرف على الأقل.</p>
+        </div>
+        <button type="submit" class="w-full px-5 py-3 rounded-2xl bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition min-h-[48px]">دخول</button>
+      </form>
+      <p class="mt-3 text-sm text-slate-300">
+        ليس لدي حساب؟
+        <button id="no-account" class="underline underline-offset-4 hover:text-white">إنشاء حساب</button>
+      </p>
+      <p id="login-ok" class="hidden mt-3 text-sm text-emerald-300">تم تسجيل الدخول ✅</p>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // سنة الفوتر
+  const yrEl = document.getElementById('yr'); if (yrEl) yrEl.textContent = new Date().getFullYear();
+
+  // منيو الموبايل
+  const btn = document.getElementById('menuBtn');
+  const nav = document.getElementById('mobileNav');
+  if (btn && nav) {
+    btn.addEventListener('click', () => nav.classList.toggle('hidden'));
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.add('hidden')));
+  }
+
+  // فورم الإيميل في السيكشن الأخضر (لو موجود)
+  window.handleSignup = function(e) {
+    e.preventDefault();
+    const input = document.getElementById('email');
+    const error = document.getElementById('email-error');
+    if (!input || !error) return false;
+    const value = (input.value || '').trim();
+    input.classList.remove('border-red-500','focus:ring-red-500');
+    error.classList.add('hidden');
+    if (value === '') {
+      input.classList.add('border-red-500','focus:ring-red-500');
+      error.classList.remove('hidden');
+      input.focus();
+      return false;
+    }
+    alert('تم التسجيل و هنتواصل معاك في أقرب وقت ممكن ✅');
+    input.value = '';
+    return false;
+  };
+
+  // ===== مودال إنشاء الحساب =====
+  const openSignupBtn = document.getElementById('open-signup');
+  const signupModal   = document.getElementById('signup-modal');
+  const signupOverlay = document.getElementById('signup-overlay');
+  const closeSignupBtn= document.getElementById('close-signup');
+
+  function openSignup(){ signupModal.classList.remove('hidden'); document.body.classList.add('overflow-hidden'); }
+  function closeSignup(){ signupModal.classList.add('hidden');   document.body.classList.remove('overflow-hidden'); }
+
+  if (openSignupBtn && signupModal && signupOverlay && closeSignupBtn) {
+    openSignupBtn.addEventListener('click', openSignup);
+    signupOverlay.addEventListener('click', closeSignup);
+    closeSignupBtn.addEventListener('click', closeSignup);
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSignup(); });
+  }
+
+  const regForm = document.getElementById('reg-form');
+  if (regForm) {
+    regForm.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const name  = document.getElementById('reg-name');
+      const email = document.getElementById('reg-email');
+      const pass  = document.getElementById('reg-pass');
+      const pass2 = document.getElementById('reg-pass2');
+      const terms = document.getElementById('reg-terms');
+      const errName  = document.getElementById('err-name');
+      const errEmail = document.getElementById('err-email');
+      const errPass  = document.getElementById('err-pass');
+      const errPass2 = document.getElementById('err-pass2');
+      const errTerms = document.getElementById('err-terms');
+
+      [name,email,pass,pass2].forEach(i => i && i.classList.remove('border-red-500','focus:ring-red-500'));
+      [errName,errEmail,errPass,errPass2,errTerms].forEach(e => e && e.classList.add('hidden'));
+
+      let ok = true;
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      if (!name.value.trim())                { name.classList.add('border-red-500','focus:ring-red-500');  errName.classList.remove('hidden');  ok=false; }
+      if (!emailRe.test(email.value.trim())) { email.classList.add('border-red-500','focus:ring-red-500'); errEmail.classList.remove('hidden'); ok=false; }
+      if ((pass.value||'').length < 6)       { pass.classList.add('border-red-500','focus:ring-red-500');  errPass.classList.remove('hidden');  ok=false; }
+      if (pass2.value !== pass.value)        { pass2.classList.add('border-red-500','focus:ring-red-500'); errPass2.classList.remove('hidden'); ok=false; }
+      if (!terms.checked)                    { errTerms.classList.remove('hidden'); ok=false; }
+      if (!ok) return;
+
+      localStorage.setItem('fantasy_user', JSON.stringify({ name: name.value.trim(), email: email.value.trim() }));
+      const okP = document.getElementById('reg-ok'); if (okP) okP.classList.remove('hidden');
+
+      setTimeout(() => {
+        if (okP) okP.classList.add('hidden');
+        [name,email,pass,pass2].forEach(i => i.value = '');
+        terms.checked = false;
+        closeSignup();
+        location.href = 'loby.html';   // ← التحويل بعد إنشاء الحساب
+      }, 800);
+    });
+  }
+
+  // ===== مودال تسجيل الدخول =====
+  const openLoginBtn = document.getElementById('open-login');
+  const loginModal   = document.getElementById('login-modal');
+  const loginOverlay = document.getElementById('login-overlay');
+  const closeLoginBtn= document.getElementById('close-login');
+  const noAccount    = document.getElementById('no-account');
+
+  function openLogin(){ loginModal.classList.remove('hidden'); document.body.classList.add('overflow-hidden'); }
+  function closeLogin(){ loginModal.classList.add('hidden');   document.body.classList.remove('overflow-hidden'); }
+
+  if (openLoginBtn && loginModal && loginOverlay && closeLoginBtn) {
+    openLoginBtn.addEventListener('click', openLogin);
+    loginOverlay.addEventListener('click', closeLogin);
+    closeLoginBtn.addEventListener('click', closeLogin);
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLogin(); });
+  }
+
+  if (noAccount && openSignupBtn) {
+    noAccount.addEventListener('click', (e) => { e.preventDefault(); closeLogin(); openSignup(); });
+  }
+
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const email = document.getElementById('login-email');
+      const pass  = document.getElementById('login-pass');
+      const errE  = document.getElementById('login-err-email');
+      const errP  = document.getElementById('login-err-pass');
+
+      [email,pass].forEach(i => i && i.classList.remove('border-red-500','focus:ring-red-500'));
+      [errE,errP].forEach(e => e && e.classList.add('hidden'));
+
+      let ok = true;
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      if (!emailRe.test(email.value.trim())) { email.classList.add('border-red-500','focus:ring-red-500'); errE.classList.remove('hidden'); ok=false; }
+      if ((pass.value||'').length < 6)       { pass.classList.add('border-red-500','focus:ring-red-500'); errP.classList.remove('hidden'); ok=false; }
+      if (!ok) return;
+
+      localStorage.setItem('fantasy_logged_in', '1');
+      const loginOk = document.getElementById('login-ok'); if (loginOk) loginOk.classList.remove('hidden');
+
+      setTimeout(() => {
+        if (loginOk) loginOk.classList.add('hidden');
+        closeLogin();
+        location.href = 'loby.html';   // ← التحويل بعد تسجيل الدخول
+      }, 600);
+    });
+  }
+})();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(console.error);
+  });
+}
+</script>
+</body>
+</html>

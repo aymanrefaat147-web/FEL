@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=no"/>
+  <title>المباريات — Fantasy Egypt Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html,body{margin:0;padding:0}
+    body{background:#07090B;color:#fff}
+    .ring{box-shadow:0 0 0 1px rgba(148,163,184,.2) inset}
+    .glass{background:rgba(15,23,42,.6);backdrop-filter:blur(8px)}
+  </style>
+</head>
+<body class="min-h-screen selection:bg-emerald-600/30">
+
+  <!-- هيدر بسيط + رجوع -->
+  <header class="sticky top-0 z-40 bg-[#0B1220]/95 border-b border-white/10 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-9 w-9 grid place-items-center rounded-xl ring" style="background:rgba(16,185,129,.15)">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M8 21h8m-4-4v4m7-16h2v3a5 5 0 01-5 5h-1.5A3.5 3.5 0 0111 9.5V5h2v4.5m-6 0A3.5 3.5 0 0010.5 13H9A5 5 0 014 8V5h2"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[11px] text-slate-400">Fantasy Egypt Pro</p>
+          <h1 class="text-base font-semibold">المباريات</h1>
+        </div>
+      </div>
+      <a href="loby.html" class="text-xs ring px-3 py-2 rounded-xl hover:bg-white/10">رجوع للوحة</a>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 pt-4 pb-10">
+    <!-- فلاتر بسيطة (اختياري) -->
+    <div class="rounded-2xl ring glass p-3 mb-4 grid sm:grid-cols-3 gap-2 text-sm">
+      <input id="search" class="px-3 py-2 rounded-xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+             placeholder="ابحث باسم فريق…">
+      <select id="day" class="px-3 py-2 rounded-xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <option value="">كل الأيام</option>
+        <option>الجمعة</option>
+        <option>السبت</option>
+        <option>الأحد</option>
+        <option>الإثنين</option>
+        <option>الثلاثاء</option>
+        <option>الأربعاء</option>
+        <option>الخميس</option>
+      </select>
+      <select id="sort" class="px-3 py-2 rounded-xl bg-slate-900/70 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <option value="time">ترتيب بالوقت</option>
+        <option value="name">ترتيب أبجدي للفرق</option>
+      </select>
+    </div>
+
+    <!-- قائمة المباريات -->
+    <div id="fixtures" class="grid gap-3"></div>
+  </main>
+<script>
+const API_BASE = '/.netlify/functions/apifootball';
+// const API_KEY  = 'YOUR_API_SPORTS_KEY_HERE';
+async function apiGet(path, params={}) {
+  const url = new URL(API_BASE + path, location.origin);
+  Object.entries(params).forEach(([k,v]) => v!=null && url.searchParams.set(k, v));
+  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error('API error ' + res.status);
+  const data = await res.json();
+  return data.response || [];
+}
+async function getEgyptLeagueAndSeason() {
+  let leagues = await apiGet('/leagues', { country: 'Egypt', name: 'Premier League' });
+  if (!leagues?.length) {
+    leagues = await apiGet('/leagues', { country: 'Egypt', name: 'Egyptian Premier League' });
+  }
+  if (!leagues?.length) {
+    const all = await apiGet('/leagues', { country: 'Egypt' });
+    leagues = all.filter(l => l.seasons?.some(s => s.current));
+  }
+  const lg = leagues[0];
+  const season = lg.seasons.find(s => s.current)?.year || new Date().getFullYear();
+  return { leagueId: lg.league.id, season };
+}
+  function fmt(d){ return d.toISOString().slice(0,10); }
+  function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+
+  async function getUpcomingFixtures(leagueId, season, daysAhead=2) {
+    const today = new Date();
+    const all = [];
+    for (let i=0; i<=daysAhead; i++){
+      const date = fmt(addDays(today, i));
+      const chunk = await apiGet('/fixtures', { league: leagueId, season, date });
+      all.push(...chunk);
+    }
+    return all;
+  }
+
+  function toCardModel(fx){
+    const dateObj = new Date(fx.fixture.date);
+    const timeStr = dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    const weekday = dateObj.toLocaleDateString('ar-EG', { weekday: 'long' });
+    return {
+      home: { name: fx.teams.home.name, logo: fx.teams.home.logo },
+      away: { name: fx.teams.away.name, logo: fx.teams.away.logo },
+      day:  weekday,
+      time: timeStr
+    };
+  }
+
+  function teamBlock(name, logo){
+    return `
+      <div class="flex flex-col items-center justify-center text-center">
+        <div class="h-12 w-12 rounded-xl ring bg-white/90 grid place-items-center overflow-hidden">
+          ${logo ? `<img src="${logo}" alt="${name}" class="h-10 w-10 object-contain">`
+                 : `<span class="text-xs font-bold text-black">${name?.charAt(0) || '?'}</span>`}
+        </div>
+        <div class="mt-2 text-sm font-semibold">${name}</div>
+      </div>
+    `;
+  }
+
+  const $fixtures = document.getElementById('fixtures');
+  const $search   = document.getElementById('search');
+  const $day      = document.getElementById('day');
+  const $sort     = document.getElementById('sort');
+
+  let LIVE_FIXTURES = [];
+
+  function render(list){
+    $fixtures.innerHTML = '';
+    list.forEach(fx=>{
+      const card = document.createElement('div');
+      card.className = `rounded-2xl ring glass px-3 py-3 grid grid-cols-3 items-center gap-2`;
+      card.innerHTML = `
+        <div class="flex justify-center">${teamBlock(fx.home.name, fx.home.logo)}</div>
+        <div class="text-center">
+          <div class="text-xs text-slate-400">${fx.day}</div>
+          <div class="text-lg font-extrabold tracking-wide mt-0.5">${fx.time}</div>
+        </div>
+        <div class="flex justify-center">${teamBlock(fx.away.name, fx.away.logo)}</div>
+      `;
+      $fixtures.appendChild(card);
+    });
+  }
+
+  function applyFilters(){
+    const q   = ($search?.value||'').trim();
+    const day = $day?.value;
+
+    let list = LIVE_FIXTURES.filter(fx=>{
+      const matchesTeam = q ? (fx.home.name.includes(q) || fx.away.name.includes(q)) : true;
+      const matchesDay  = day ? (fx.day === day) : true;
+      return matchesTeam && matchesDay;
+    });
+
+    if ($sort?.value === 'name') {
+      list = list.slice().sort((a,b)=> (a.home.name + a.away.name).localeCompare(b.home.name + b.away.name, 'ar'));
+    } else {
+      const order = ['الجمعة','السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس'];
+      list = list.slice().sort((a,b)=>{
+        const d = order.indexOf(a.day) - order.indexOf(b.day);
+        if (d !== 0) return d;
+        return a.time.localeCompare(b.time, 'ar');
+      });
+    }
+
+    render(list);
+  }
+
+  [$search,$day,$sort].forEach(el => el && el.addEventListener('input', applyFilters));
+
+  async function boot(){
+    try{
+      const { leagueId, season } = await getEgyptLeagueAndSeason();
+      const raw = await getUpcomingFixtures(leagueId, season, 2);
+      LIVE_FIXTURES = raw.map(toCardModel);
+      applyFilters();
+    } catch (e){
+      console.error(e);
+      $fixtures.innerHTML = `<div class="ring glass p-4 rounded-2xl text-sm text-red-300">حصل خطأ في تحميل المباريات.</div>`;
+    }
+  }
+
+  boot();
+setInterval(boot, 60000);
+</script>
+</body>
+</html>

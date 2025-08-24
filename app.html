@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+  <title>FEL — التطبيق</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0a1730">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{background:#0a0f18;color:#e5e7eb}
+    .ring{box-shadow:0 0 0 1px rgba(148,163,184,.2) inset}
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="sticky top-0 z-40 bg-[#0B1220] border-b border-white/10">
+    <div class="mx-auto max-w-7xl px-4 h-14 flex items-center justify-between">
+      <a href="/index.html" class="text-slate-300 hover:text-white text-sm">← رجوع</a>
+      <h1 class="font-bold">FEL — صانع التشكيلة</h1>
+      <span class="text-xs text-slate-400" id="userChip"></span>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6">
+    <div class="rounded-2xl ring p-4 md:p-6">
+      <p class="text-slate-300 text-sm">هنا هنركّب واجهة صانع التشكيلة.</p>
+      <ul class="list-disc pr-6 mt-3 text-sm text-slate-300 space-y-1">
+        <li>خانات: حارس — دفاع — وسط — هجوم</li>
+        <li>مودال اختيار لاعب مع فلترة</li>
+        <li>مودال تفاصيل لاعب (حذف/تبديل/إلغاء)</li>
+        <li>حفظ في <code>localStorage</code> + ميزانية</li>
+      </ul>
+      <div class="mt-4">
+        <button id="openBuilder" class="px-4 py-2 rounded-xl bg-emerald-500 text-black font-semibold">افتح الصانع</button>
+      </div>
+    </div>
+
+    <!-- هنا حطّ الصانع الحقيقي لاحقاً -->
+    <section id="builderMount" class="mt-6"></section>
+  </main>
+
+  <script>
+    // اسم المستخدم من localStorage
+    try {
+      const u = JSON.parse(localStorage.getItem('fantasy_user') || '{}');
+      if (u?.name) document.getElementById('userChip').textContent = u.name;
+    } catch {}
+
+    // زر مؤقت يركّب الصانع (دلوقتي بس بليس هولدر)
+    document.getElementById('openBuilder')?.addEventListener('click', () => {
+      const mount = document.getElementById('builderMount');
+      mount.innerHTML = `
+        <div class="rounded-2xl ring p-4">
+          <p class="text-sm text-slate-300">هنا هيظهر الصانع— انسخ كود التشكيلة اللي عملناه قبل كده بدل البليس هولدر ده.</p>
+        </div>`;
+      // ملاحظات:
+      // - لما تلزّق الصانع، انسخ سكربته وستايله هنا مباشرة (أو استوردهم من ملفات منفصلة).
+      // - لو عندك بيانات اللاعبين PLAYERS هتحطّها زي ما اتفقنا.
+    });
+
+    // SW للصفحة دي برضه
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
+      });
+    }
+  </script>
+</body>
+</html>

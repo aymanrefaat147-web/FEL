@@ -1,0 +1,576 @@
+  <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=no"/>
+  <title>Fantasy Egypt Pro — تطبيق</title>
+  <meta name="description" content="لوحة الفانتزي: تفضيلاتك، المتصدرون، وبناء التشكيلة.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+  html,body{margin:0;padding:0}
+    body{background:#07090B;color:#fff}
+    .ring{box-shadow:0 0 0 1px rgba(148,163,184,.2) inset}
+    .glass{background:rgba(15,23,42,.6);backdrop-filter:blur(8px)}
+    html{-webkit-text-size-adjust:100%}
+
+    /* ترانزيشنات سموز */
+    .fade{transition:opacity .28s ease, transform .28s ease}
+    .invis{opacity:0; transform:translateY(8px) scale(.98)}
+    .vis  {opacity:1; transform:translateY(0)  scale(1)}
+    .tab-hide{opacity:0; transform:scale(.98); pointer-events:none}
+    .tab-show{opacity:1; transform:scale(1); pointer-events:auto; transition:opacity .25s ease, transform .25s ease}
+
+    /* كارد الملعب */
+    .bg-card img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:center;
+  filter: blur(3px) brightness(.7);
+  transform:scale(1.06);
+}
+.bg-card::after{
+  content:""; position:absolute; inset:0;
+  background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.48));
+}
+/* --- Mobile polish --- */
+/* --- Mobile polish --- */
+/* --- Mobile polish --- */
+@media (max-width:640px){
+  /* شريط التبويبات الثابت أسفل الشاشة */
+  .mobile-tabs{
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 50;
+    background: rgba(11,18,32,.92);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+  /* ترك هامش أسفل الصفحة حتى لا يُغطّى المحتوى بالشريط */
+  body { padding-bottom: 68px; }
+
+  /* تقليل ارتفاع بطاقة “ابن فريقك الآن” وحجم زرّها */
+  .hero-card { min-height: 200px; }
+  .hero-cta  { padding: 10px 14px; border-radius: 14px; }
+  .hero-cta span { font-size: 15px; }
+
+  /* تصغير صورة الأفاتار وحجم اسم المستخدم */
+  .hdr-avatar   { width: 28px; height: 28px; }
+  .hdr-username { font-size: 12px; }
+
+  /* تقليل المسافات بين عناصر اختيار الفرق واللاعبين */
+  #teams-list { gap: 10px; }
+  #players-list { gap: 10px; }
+}
+  </style>
+</head>
+<body class="min-h-screen selection:bg-emerald-600/30">
+
+  <!-- الهيدر -->
+<!-- الهيدر -->
+<header class="sticky top-0 z-40 bg-[#0B1220]/95 border-b border-white/10 backdrop-blur">
+  <div class="max-w-7xl mx-auto px-4">
+    <!-- صف الهيدر: flex على الموبايل، grid بثلاثة أعمدة من شاشة md فما فوق -->
+    <div class="h-16 flex md:grid items-center justify-between md:grid-cols-3">
+      <!-- يسار: اللوجو واسم الموقع -->
+      <div class="md:justify-self-start flex items-center gap-3">
+        <div class="h-9 w-9 grid place-items-center rounded-xl ring" style="background:rgba(16,185,129,.15)">
+          <!-- أيقونة اللوجو -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M8 21h8m-4-4v4m7-16h2v3a5 5 0 01-5 5h-1.5A3.5 3.5 0 0111 9.5V5h2v4.5m-6 0A3.5 3.5 0 0010.5 13H9A5 5 0 014 8V5h2"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[11px] text-slate-400">Fantasy Egypt Pro</p>
+          <h1 class="text-base font-semibold">لوحة التحكم</h1>
+        </div>
+      </div>
+
+      <!-- الوسط: التبويبات (تظهر على md فما فوق) -->
+      <nav class="hidden md:flex justify-center items-center gap-2 text-sm">
+<a href="matches.html" class="px-4 py-2 rounded-xl hover:bg-white/5 ring">المباريات</a>
+        <button data-tab="fantasy" class="tabbtn px-4 py-2 rounded-xl hover:bg-white/5 ring">الفانتزي</button>
+        <button data-tab="news"    class="tabbtn px-4 py-2 rounded-xl hover:bg-white/5 ring">آخر الأخبار</button>
+      </nav>
+
+      <!-- اليمين: بروفايل المستخدم وزر تعديل التفضيلات -->
+      <div class="md:justify-self-end flex items-center gap-2">
+        <div class="flex items-center gap-2 ring rounded-full px-2 py-1 bg-white/5 hover:bg-white/10">
+          <div class="h-8 w-8 rounded-full ring grid place-items-center bg-emerald-600/20 hdr-avatar">
+            <!-- أيقونة الأفاتار -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="h-5 w-5">
+              <circle cx="18" cy="12" r="6" fill="currentColor"></circle>
+              <path d="M6 30c0-6.627 5.373-10 12-10s12 3.373 12 10" fill="currentColor"></path>
+            </svg>
+          </div>
+          <span id="username" class="text-sm font-medium hdr-username">ضيف</span>
+        </div>
+        <button id="editPrefs" class="text-xs ring px-3 py-2 rounded-xl hover:bg-white/10">
+          تعديل التفضيلات
+        </button>
+      </div>
+    </div>
+
+    <!-- شريط التبويبات للموبايل -->
+    <div class="md:hidden mobile-tabs">
+      <div class="px-4 py-2 grid grid-cols-3 gap-2">
+       <a href="matches.html"
+   class="w-full inline-block text-center px-3 py-2 rounded-xl hover:bg-white/5 ring text-sm">المباريات</a>
+        <button data-tab="fantasy"
+                class="tabbtn w-full px-3 py-2 rounded-xl hover:bg-white/5 ring text-sm">الفانتزي</button>
+        <button data-tab="news"
+                class="tabbtn w-full px-3 py-2 rounded-xl hover:bg-white/5 ring text-sm">آخر الأخبار</button>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-6">
+    <!-- Onboarding (أول مرة فقط) -->
+    <section id="onboarding" class="rounded-3xl ring glass p-5 md:p-8 hidden">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl md:text-2xl font-bold">مرحبًا 👋 اختَر تفضيلاتك الأول</h2>
+        <p id="step-indicator" class="text-xs text-slate-400">الخطوة 1 من 2</p>
+      </div>
+
+      <!-- فرق -->
+      <div id="step-teams" class="mt-5 fade invis">
+        <p class="text-sm text-slate-300 mb-3">اختَر فريقك/فرقك المفضلة (فريق واحد على الأقل):</p>
+        <div id="teams-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+        <div class="mt-6 flex justify-end">
+          <button id="to-players" disabled class="rounded-2xl bg-emerald-500/60 px-5 py-2 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed">التالي</button>
+        </div>
+      </div>
+
+      <!-- لاعبين -->
+      <div id="step-players" class="mt-5 hidden fade invis">
+        <div class="flex flex-wrap items-center gap-3">
+          <p class="text-sm text-slate-300">اختَر لاعبين تتابعهم (اختياري، حتى 5):</p>
+          <input id="player-search" class="px-3 py-2 rounded-xl bg-slate-900/70 border border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="ابحث باسم اللاعب…"/>
+        </div>
+        <div id="players-list" class="mt-4 grid sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+
+        <div class="mt-6 flex justify-between">
+          <button id="back-to-teams" class="rounded-2xl ring px-5 py-2">رجوع</button>
+          <button id="finish-onboarding" class="rounded-2xl bg-emerald-500 px-5 py-2 text-black font-semibold">ابدأ</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- تبويب: المباريات -->
+    <section id="tab-matches" class="rounded-3xl ring glass p-5 md:p-8 hidden">
+    <h2 class="text-xl md:text-2xl font-bold">المباريات</h2>
+      <div id="fixtures" class="mt-4 grid gap-3"></div>
+    </section>
+
+    <!-- تبويب: الفانتزي -->
+<section id="tab-fantasy" class="rounded-3xl ring glass p-0 md:p-0">
+ <!-- كارد ابن فريقك الآن -->
+<div class="relative overflow-hidden rounded-3xl ring bg-card min-h-[260px] hero-card">
+  <img
+    src="./assets/football-stadium-with-crowd-people-lights_587448-8386.jpg"
+    alt="ملعب كرة قدم بجماهير"
+    loading="lazy"
+  >
+  <a href="builder.html" class="relative z-10 block p-6 md:p-10 group">
+    <div class="max-w-2xl">
+      <div class="inline-flex items-center gap-3 rounded-2xl bg-white text-black px-4 py-2 transition transform group-hover:scale-[1.02] hero-cta">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="font-extrabold text-lg md:text-xl">ابن فريقك الآن</span>
+      </div>
+      <p class="mt-3 text-slate-200/95 text-sm md:text-base">
+        ابدأ ببناء تشكيلتك — هنحسب الميزانية ونضمن المراكز تلقائيًا.
+      </p>
+    </div>
+  </a>
+</div>
+
+      <!-- تفضيلات + المتصدرون -->
+      <div class="p-5 md:p-8 grid md:grid-cols-3 gap-6">
+        <div class="rounded-2xl ring glass p-4 md:col-span-1">
+          <h3 class="font-semibold">تفضيلاتك</h3>
+          <div id="favSummary" class="mt-2 text-xs text-slate-300"></div>
+        </div>
+
+        <div class="rounded-2xl ring glass p-4 md:col-span-2">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold">المتصدرون</h3>
+            <span class="text-xs text-slate-400">تجريبي</span>
+          </div>
+          <div class="mt-3 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="text-slate-300">
+<tr class="text-right">
+  <th class="py-2 w-12 text-center">#</th>
+  <th class="py-2 text-right">اللاعب</th>
+  <th class="py-2 text-right">الفريق</th>
+  <th class="py-2 text-right">النقاط</th>
+</tr>
+              </thead>
+              <tbody id="leaderboard" class="text-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- تبويب: الأخبار -->
+<section id="tab-news" class="rounded-3xl ring glass p-5 md:p-8 hidden">
+      <h2 class="text-xl md:text-2xl font-bold">آخر الأخبار</h2>
+      <div id="newslist" class="mt-4 grid md:grid-cols-3 gap-3"></div>
+    </section>
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 py-10 text-slate-400 text-sm">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <p>powered by: AYMAN REFAAT</p>
+      <p class="text-xs">© <span id="yr"></span> Fantasy Egypt Pro</p>
+    </div>
+  </footer>
+
+<script>
+(()=> {
+  // ===== بيانات عيّنة =====
+  // ثيمات الأندية (لوجو + ألوان)
+
+// ثيمات الأندية: لون أساسي + لون نص + شعار (من /club-logos/)
+const TEAM_THEME = {
+  'الأهلي':               { color:'#C8102E', text:'#FFFFFF', logo:'/club-logos/AlAhly.png' },
+
+  'الزمالك':              { color:'#FFFFFF', text:'#111111', logo:'/club-logos/zamalek.png', border:'#dc2626' },
+
+  'بيراميدز':             { color:'#38BDF8', text:'#0B1220', logo:'/club-logos/Pyramids.png' },
+
+  'المصري':               { color:'#16A34A', text:'#FFFFFF', logo:'/club-logos/Masry.png' },              // أخضر
+  'الاسماعيلي':           { color:'#FACC15', text:'#0B1220', logo:'/club-logos/Ismaily.png' },           // أصفر
+  'فيوتشر':               { color:'#F87171', text:'#0B1220', logo:'/club-logos/Future.png' },            // أحمر فاتح
+  'سموحة':                { color:'#2563EB', text:'#FFFFFF', logo:'/club-logos/Smouha.png' },
+
+  'زد':                   { color:'#065F46', text:'#FFFFFF', logo:'/club-logos/Zed.png' },               // أخضر داكن
+
+  'سيراميكا كليوباترا':   { color:'#7F1D1D', text:'#FFFFFF', logo:'/club-logos/سيراميكا.png' },         // أحمر دم غزالي
+  'انبي':                 { color:'#1F4E5F', text:'#FFFFFF', logo:'/club-logos/Enppi.png' },             // أزرق بترولي
+  'طلائع الجيش':          { color:'#DC2626', text:'#FFFFFF', logo:'/club-logos/طلائع_الجيش.png' },       // أحمر
+  'الاتحاد السكندري':      { color:'#16A34A', text:'#FFFFFF', logo:'/club-logos/الاتحاد_السكندري.png' }, // أخضر
+
+  'الجونة':               { color:'#FFFFFF', text:'#111111', logo:'/club-logos/ElGouna.png', border:'#e5e7eb' }, // أبيض
+
+  'البنك الأهلي':         { color:'#FB923C', text:'#0B1220', logo:'/club-logos/NBE.png' },               // برتقالي "مش فاقع"
+  'غزل المحلة':           { color:'#38BDF8', text:'#0B1220', logo:'/club-logos/غزل_المحلة.png' },        // سماوي
+  'فاركو':                { color:'#EA580C', text:'#0B1220', logo:'/club-logos/Pharco.png' },            // برتقالي قريب للأحمر
+
+  'المقاولون العرب':      { color:'#F59E0B', text:'#0B1220', logo:'/club-logos/المقاولون.png' },         // أصفر مش فاقع
+  'حرس الحدود':           { color:'#DC2626', text:'#FFFFFF', logo:'/club-logos/HarasElHodoud.png' },     // أحمر
+  'كهرباء الإسماعيلية':   { color:'#FACC15', text:'#0B1220', logo:'/club-logos/نادي_كهرباء_الإسماعيلية.png' }, // أصفر
+  'وادي دجلة':            { color:'#CA8A04', text:'#0B1220', logo:'/club-logos/Wadi_Degla.png' },        // أصفر غامق شوية
+  'بتروجيت':              { color:'#DC2626', text:'#FFFFFF', logo:'/club-logos/Petrojet.png' }           // أحمر
+};
+const TEAMS = [
+  'الأهلي',
+  'الزمالك',
+  'بيراميدز',
+
+  'المصري',
+  'الاسماعيلي',
+  'فيوتشر',
+  'سموحة',
+
+  'زد',
+  'سيراميكا كليوباترا',
+  'انبي',
+  'طلائع الجيش',
+  'الاتحاد السكندري',
+
+  'الجونة',
+  'البنك الأهلي',
+  'غزل المحلة',
+  'فاركو',
+  'المقاولون العرب',
+  'حرس الحدود',
+  'كهرباء الإسماعيلية',
+  'وادي دجلة',
+  'بتروجيت'
+];
+  const PLAYERS = [
+    {name:'محمد الشناوي', team:'الأهلي',    pos:'GK',  price:7.0},
+    {name:'علي لطفي',     team:'الزمالك',   pos:'GK',  price:5.5},
+    {name:'علي جبر',      team:'بيراميدز',  pos:'DEF', price:6.0},
+    {name:'عمر كمال',     team:'فيوتشر',    pos:'DEF', price:5.5},
+    {name:'محمود علاء',   team:'الاتحاد',   pos:'DEF', price:5.5},
+    {name:'حمدي فتحي',    team:'الأهلي',    pos:'MID', price:7.5},
+    {name:'إمام عاشور',   team:'الأهلي',    pos:'MID', price:8.0},
+    {name:'زيزو',         team:'الزمالك',   pos:'MID', price:10.0},
+    {name:'مروان حمدي',   team:'المصري',    pos:'FWD', price:6.5},
+    {name:'أحمد رفعت',    team:'المصري',    pos:'MID', price:6.0},
+    {name:'ناصر منسي',    team:'الزمالك',   pos:'FWD', price:6.0},
+    {name:'رمضان صبحي',   team:'بيراميدز',  pos:'MID', price:9.5},
+    {name:'مصطفى فتحي',   team:'بيراميدز',  pos:'MID', price:8.5},
+    {name:'محمد حمدي',    team:'بيراميدز',  pos:'DEF', price:5.0},
+  ];
+  const FIXTURES = [
+    {home:'الأهلي', away:'الزمالك', time:'الجمعة 20:00'},
+    {home:'بيراميدز', away:'فيوتشر', time:'السبت 18:30'},
+    {home:'المصري', away:'الاتحاد', time:'الأحد 17:00'},
+  ];
+  const SAMPLE_NEWS = [
+    {title:'تحديث نقاط الجولة 3', body:'تم احتساب النقاط بعد نهاية المباريات.'},
+    {title:'تحسينات الواجهة', body:'تم إضافة ترانزيشنات سموز وكارد بناء فريق.'},
+    {title:'ربط البيانات', body:'جاري التحضير لربط مزوّد الإحصائيات الرسمي.'},
+  ];
+  const LEADERS = [
+    {rank:1, name:'Ahmed Pro',   team:'الأهلي',    pts:124},
+    {rank:2, name:'Zizo Master', team:'الزمالك',   pts:118},
+    {rank:3, name:'PyramidsX',   team:'بيراميدز',  pts:112},
+    {rank:4, name:'Future FC',   team:'فيوتشر',    pts:105},
+    {rank:5, name:'Ismailia',    team:'الإسماعيلي', pts:98},
+  ];
+
+  // سنة الفوتر
+  const yr = document.getElementById('yr'); if (yr) yr.textContent = new Date().getFullYear();
+
+  // اسم المستخدم من localStorage (fantasy_user: {name,email}) أو fantasy_email
+  const userSpan = document.getElementById('username');
+  try {
+    const raw = localStorage.getItem('fantasy_user');
+    if (raw) {
+      const u = JSON.parse(raw);
+      let display = (u.name && u.name.trim()) ? u.name.trim() : '';
+      if (!display && u.email) display = String(u.email).split('@')[0];
+      if (display) userSpan.textContent = display;
+    } else {
+      const emailOnly = localStorage.getItem('fantasy_email');
+      if (emailOnly) userSpan.textContent = String(emailOnly).split('@')[0];
+    }
+  } catch(_) {}
+
+  // ===== تبويبات =====
+  const tabBtns = [...document.querySelectorAll('.tabbtn')];
+  const tabs = {
+    matches: document.getElementById('tab-matches'),
+    fantasy: document.getElementById('tab-fantasy'),
+    news:    document.getElementById('tab-news'),
+  };
+
+function switchTab(id){
+  Object.values(tabs).forEach(el => el.classList.add('hidden'));   // يخفي الكل (display:none)
+  const show = tabs[id];
+  show.classList.remove('hidden');                                  // يظهر المطلوب
+  tabBtns.forEach(b=> b.classList.remove('bg-white','text-black'));
+  tabBtns.filter(b=> b.dataset.tab===id).forEach(b=> b.classList.add('bg-white','text-black'));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+  tabBtns.forEach(b=> b.addEventListener('click', ()=> switchTab(b.dataset.tab)));
+
+  // مباريات
+  const fixtures = document.getElementById('fixtures');
+  FIXTURES.forEach(f=>{
+    const row = document.createElement('div');
+    row.className = 'rounded-2xl ring glass p-3 flex items-center justify-between text-sm fade invis';
+    row.innerHTML = `<span>${f.home} vs ${f.away}</span><span class="text-slate-400">${f.time}</span>`;
+    fixtures.appendChild(row);
+    requestAnimationFrame(()=> { row.classList.remove('invis'); row.classList.add('vis'); });
+  });
+
+  // المتصدرون
+  const leaderboard = document.getElementById('leaderboard');
+  LEADERS.forEach(l=>{
+    const tr = document.createElement('tr');
+    tr.className = 'border-t border-white/5';
+    tr.innerHTML = `
+  <td class="py-2 w-12 text-center text-slate-400">${l.rank}</td>
+  <td class="py-2 text-right">${l.name}</td>
+  <td class="py-2 text-right text-slate-300">${l.team}</td>
+  <td class="py-2 text-right font-semibold">${l.pts}</td>
+`;
+    leaderboard.appendChild(tr);
+  });
+
+  // الأخبار
+  const newslist = document.getElementById('newslist');
+  SAMPLE_NEWS.forEach(n=>{
+    const card = document.createElement('div');
+    card.className = 'rounded-2xl ring glass p-3 fade invis';
+    card.innerHTML = `<div class="font-semibold">${n.title}</div><p class="text-sm text-slate-300 mt-1">${n.body}</p>`;
+    newslist.appendChild(card);
+    requestAnimationFrame(()=> { card.classList.remove('invis'); card.classList.add('vis'); });
+  });
+
+  // ===== Onboarding =====
+  const onboarding = document.getElementById('onboarding');
+  const stepIndicator = document.getElementById('step-indicator');
+  const stepTeams = document.getElementById('step-teams');
+  const stepPlayers = document.getElementById('step-players');
+  const teamsList = document.getElementById('teams-list');
+  const toPlayers = document.getElementById('to-players');
+  const playerSearch = document.getElementById('player-search');
+  const playersList = document.getElementById('players-list');
+  const backToTeams = document.getElementById('back-to-teams');
+  const finishOnboarding = document.getElementById('finish-onboarding');
+  const favSummary = document.getElementById('favSummary');
+  const editBtn = document.getElementById('editPrefs'); // زر "تعديل التفضيلات"
+
+  const st = { favTeams:new Set(), favPlayers:new Set() };
+
+  
+  function renderFavSummary(){
+  const favTeams = JSON.parse(localStorage.getItem('favTeams')||'[]');
+  if (!favTeams.length) {
+    favSummary.innerHTML = `<div class="text-slate-400 text-xs">لا توجد فرق مفضلة بعد</div>`;
+    return;
+  }
+  const chips = favTeams.map(name=>{
+    const th = TEAM_THEME[name] || {};
+    const bg = th.color || 'rgba(15,23,42,.7)';
+    const tc = th.text  || '#fff';
+    const bd = th.border ? `border:1px solid ${th.border};` : '';
+    const logo = th.logo
+  ? `<img src="${th.logo}" class="h-5 w-5 object-contain shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,.45)]" alt="${name}">`
+  : `<span class="h-5 w-5 grid place-items-center text-[10px] font-bold">${name[0]}</span>`;
+    return `
+      <span class="inline-flex items-center gap-2 rounded-xl px-2.5 py-1 mr-2 mb-2"
+            style="background:${bg}; color:${tc}; ${bd}">
+        ${logo}
+        <span class="text-xs">${name}</span>
+      </span>`;
+  }).join('');
+
+  const favPlayers = JSON.parse(localStorage.getItem('favPlayers')||'[]');
+  const playersLine = favPlayers.length ? `<div class="mt-2 text-slate-300 text-xs">اللاعبون: ${favPlayers.join('، ')}</div>` : '';
+
+  favSummary.innerHTML = chips + playersLine;
+}
+
+  // (1) buildTeams مع خيار prefill
+  function buildTeams(prefill=false){
+  teamsList.innerHTML = '';
+  TEAMS.forEach(t=>{
+    const theme = TEAM_THEME[t] || { color:'rgba(15,23,42,.7)', text:'#fff', logo:'' };
+    const btn = document.createElement('button');
+    btn.className = 'team-btn relative flex items-center gap-2 rounded-2xl ring px-3 py-2 text-sm transition hover:scale-[1.01]';
+    btn.style.background = theme.color;
+    btn.style.color = theme.text;
+    if (theme.border) { btn.style.border = `1px solid ${theme.border}`; }
+
+    btn.innerHTML = `
+  ${theme.logo
+    ? `<img src="${theme.logo}" alt="${t}"
+            class="h-6 w-6 object-contain shrink-0 drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.45)]">`
+    : `<span class="h-6 w-6 grid place-items-center text-[10px] font-bold">${t[0]}</span>`}
+  <span>${t}</span>
+`;
+
+    // تمييز المختار مسبقًا
+    if (prefill && st.favTeams.has(t)) {
+      btn.classList.add('ring-2','ring-emerald-400','shadow-[0_0_0_3px_rgba(16,185,129,.25)]');
+    }
+
+    btn.addEventListener('click', ()=>{
+      if (st.favTeams.has(t)) {
+        st.favTeams.delete(t);
+        btn.classList.remove('ring-2','ring-emerald-400','shadow-[0_0_0_3px_rgba(16,185,129,.25)]');
+      } else {
+        st.favTeams.add(t);
+        btn.classList.add('ring-2','ring-emerald-400','shadow-[0_0_0_3px_rgba(16,185,129,.25)]');
+      }
+      toPlayers.disabled = st.favTeams.size < 1;
+    });
+
+    teamsList.appendChild(btn);
+  });
+}
+
+  function renderPlayers(){
+    const term = (playerSearch.value||'').trim();
+    const filtered = PLAYERS.filter(p=> term? p.name.includes(term) : true);
+    playersList.innerHTML = '';
+    filtered.forEach(p=>{
+      const selected = st.favPlayers.has(p.name);
+      const card = document.createElement('div');
+      card.className = 'rounded-2xl ring glass p-3 text-sm fade invis';
+      card.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <div><div class="font-semibold">${p.name}</div><div class="text-xs text-slate-400">${p.team} • ${p.pos}</div></div>
+          <div class="text-xs">${p.price}M</div>
+        </div>
+        <button class="mt-3 w-full rounded-xl ${selected?'bg-red-500':'bg-emerald-500'} text-black font-semibold py-2">${selected?'إزالة':'إضافة'}</button>
+      `;
+      const btn = card.querySelector('button');
+      btn.addEventListener('click', ()=>{
+        if (st.favPlayers.has(p.name)) st.favPlayers.delete(p.name);
+        else { if (st.favPlayers.size>=5) return; st.favPlayers.add(p.name); }
+        renderPlayers();
+      });
+      playersList.appendChild(card);
+      requestAnimationFrame(()=> { card.classList.remove('invis'); card.classList.add('vis'); });
+    });
+  }
+
+  // (2) دالة تفتح الـ Onboarding في أي وقت + تملّي القديم
+  function openOnboarding(edit=false){
+    // حمّل القديم من localStorage
+    st.favTeams   = new Set(JSON.parse(localStorage.getItem('favTeams')||'[]'));
+    st.favPlayers = new Set(JSON.parse(localStorage.getItem('favPlayers')||'[]'));
+
+    onboarding.classList.remove('hidden');
+    stepIndicator.textContent = 'الخطوة 1 من 2';
+    stepPlayers.classList.add('hidden');
+    stepTeams.classList.remove('hidden');
+
+    // ابني أزرار الفرق مع تمييز المختار
+    buildTeams(true);
+    toPlayers.disabled = st.favTeams.size < 1;
+
+    requestAnimationFrame(()=> { stepTeams.classList.remove('invis'); stepTeams.classList.add('vis'); });
+
+    // لو ضغطت تعديل التفضيلات هنفتح المباريات مؤقتًا
+    if (edit) switchTab('matches');
+  }
+
+  // ربط زر "تعديل التفضيلات"
+  editBtn?.addEventListener('click', ()=> openOnboarding(true));
+
+  // انتقال بين خطوات الأونبوردنج
+  toPlayers?.addEventListener('click', ()=>{
+    stepIndicator.textContent = 'الخطوة 2 من 2';
+    stepTeams.classList.add('hidden');
+    stepPlayers.classList.remove('hidden');
+    requestAnimationFrame(()=> { stepPlayers.classList.remove('invis'); stepPlayers.classList.add('vis'); });
+    renderPlayers();
+  });
+  backToTeams?.addEventListener('click', ()=>{
+    stepIndicator.textContent = 'الخطوة 1 من 2';
+    stepPlayers.classList.add('hidden');
+    stepTeams.classList.remove('hidden');
+    requestAnimationFrame(()=> { stepTeams.classList.remove('invis'); stepTeams.classList.add('vis'); });
+  });
+  finishOnboarding?.addEventListener('click', ()=>{
+    localStorage.setItem('favTeams', JSON.stringify([...st.favTeams]));
+    localStorage.setItem('favPlayers', JSON.stringify([...st.favPlayers]));
+    localStorage.setItem('onboarded','1');
+    onboarding.classList.add('hidden');
+    renderFavSummary();
+    switchTab('fantasy'); // بعد ما يخلص، نفتح الفانتزي
+  });
+
+  // ===== الإقلاع =====
+  function init(){
+    // أول مرة ولا لأ؟
+    if (localStorage.getItem('onboarded') !== '1') {
+      onboarding.classList.remove('hidden');
+      // بداية بدون prefill
+      st.favTeams = new Set();
+      st.favPlayers = new Set();
+      buildTeams(false);
+      requestAnimationFrame(()=> { stepTeams.classList.remove('invis'); stepTeams.classList.add('vis'); });
+      switchTab('matches'); // مؤقتًا
+    } else {
+      renderFavSummary();
+      switchTab('fantasy'); // لو مخلّص قبل كده نفتح الفانتزي
+    }
+  }
+  init();
+})();
+</script>
+</body>
+</html>

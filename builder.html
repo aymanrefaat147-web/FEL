@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>صانع التشكيلة — إصدار ثابت مع نافذة تفاصيل</title>
+<style>
+:root{
+  --bg:#070f1f; --card:#0e1a31; --ink:#e5e7eb; --muted:#94a3b8;
+  --line:#22335d; --accent:#2563eb; --ok:#16a34a; --danger:#ef4444;
+  --slot:#ffffff1a; --slot-ring:#cbd5e155; --chip:#0e273f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Kufi Arabic",Arial}
+.container{max-width:1150px;margin:auto;padding:16px}
+.topbar{display:flex;justify-content:space-between;align-items:center;background:#0b172d;border:1px solid #1e3359;border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.brand{font-weight:800;color:#dbeafe}
+.userbox{display:flex;align-items:center;gap:8px}
+.u-avatar{width:32px;height:32px;border-radius:999px;border:1px solid #2b3e67;background:#0b1a31;object-fit:cover}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+.pill{background:#0e1f3b;border:1px solid #1e3359;color:#cbd5e1;border-radius:999px;padding:6px 10px;font-size:12px}
+.btn{border:1px solid #25406f;background:#0f223f;color:#e2e8f0;border-radius:12px;padding:10px 14px;cursor:pointer}
+.btn.ghost{background:transparent;border-color:#334155}
+.btn.green{background:var(--ok);border-color:#0f6e2c;color:#fff}
+.btn.red{background:#b91c1c;border-color:#7f1d1d;color:#fff}
+
+.pitch{position:relative;border-radius:16px;border:1px solid #203b6a;background:#0a172f;padding:18px;overflow:hidden}
+.pitch::before{content:"";position:absolute;inset:0;background-image:url("assets/Pitch.jpg");background-size:cover;background-position:bottom;opacity:.18;pointer-events:none}
+.title{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;margin:8px 0 6px;font-weight:700;color:#c7d2fe}
+.inline-ctrls{display:flex;align-items:center;gap:6px}
+.inline-ctrls .btn{padding:6px 10px;border-radius:10px}
+.count-chip{display:inline-block;min-width:22px;text-align:center;font-weight:800}
+.row{position:relative;z-index:1;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;min-height:116px}
+
+/* Slot card */
+.slot{
+  width:140px;height:108px;border-radius:16px;background:var(--slot);border:1px solid var(--slot-ring);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:#0f172a;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 8px 20px #00000020, inset 0 1px 0 #ffffff2e;
+}
+.slot:hover{background:#ffffff26}
+.slot.in{
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 8px 10px;
+  position: relative; /* الجديد */
+}
+/* قسم السعر والشارة داخل كل خانة */
+.slot-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: space-between;
+  width: 100%;
+}
+.card-top{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ava{width:54px;height:54px;border-radius:12px;object-fit:cover;border:1px solid #2b3e67;background:#0b1a31}
+.pname{font-weight:800;color:#e5e7eb}
+.meta{font-size:12px;color:#334155}
+.price{background:#102d1d;border:1px solid #1f5133;color:#86efac;border-radius:10px;padding:2px 6px;font-size:11px}
+
+/* club badge */
+.club-badge{display:inline-flex;align-items:center;gap:6px;background:#152543;border:1px solid #294579;
+  color:#dbeafe;border-radius:10px;padding:2px 8px;font-size:11px;max-width:100%;overflow:hidden}
+  /* Footer styling */
+/* Footer styling */
+.footer {
+  margin: 20px auto 0;        /* مسافة علوية وتمركز فى المنتصف */
+  max-width: 1150px;          /* نفس عرض الحاوية */
+  text-align: center;         /* محاذاة النص */
+  font-size: 10px;            /* حجم خط صغير */
+  color: var(--muted);        /* لون هادئ متناغم */
+  opacity: 0.6;               /* شفافية خفيفة */
+  font-weight: 400;           /* وزن خط خفيف */
+  position: relative;         /* يسمح بتحريك العنصر */
+  bottom: 10px;               /* يرفعه 10 بكسل للأعلى بحيث لا يلتصق بأسفل الصفحة */
+}
+.club-badge img{height:16px;object-fit:contain}
+
+/* bench */
+.box{background:#0b172d;border:1px solid #1e3359;border-radius:16px}
+.box-head{padding:10px 12px;border-bottom:1px solid #1e3359}
+.box-inner{padding:12px}
+#bench{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* picker sheet */
+.overlay{position:fixed;inset:0;background:#0008;display:none;align-items:flex-start;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.sheet{width:min(1000px,96vw);margin-top:70px;background:#0e1a31;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.sheet-head{position:sticky;top:0;background:#0f1e3b;border-bottom:1px solid var(--line);z-index:2;padding:10px}
+.sheet-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.field input,.field select{background:#0b1630;border:1px solid #1f2f53;color:#e2e8f0;border-radius:12px;height:38px;padding:0 12px;min-width:180px}
+.table{max-height:52vh;overflow:auto}
+table{width:100%;border-collapse:separate;border-spacing:0}
+thead th{position:sticky;top:0;background:#0f1e3b;border-bottom:1px solid #20345c;padding:10px;font-size:13px;color:#cbd5e1;text-align:right}
+tbody td{border-bottom:1px solid #16223d;padding:10px 8px;font-size:13px;vertical-align:middle}
+.player-cell{display:flex;align-items:center;gap:10px}
+.add-btn{background:var(--ok);border:0;color:#fff;border-radius:10px;padding:6px 10px;cursor:pointer}
+
+/* error + shake */
+.error-bar{display:none; position:absolute; top:8px; left:10px; right:auto; background:#7f1d1dcc; border:1px solid var(--danger);
+  color:#fee2e2;padding:6px 10px;border-radius:10px;font-size:12px;box-shadow:0 2px 8px #0003; margin:0; z-index:3;}
+.error-bar.show{display:inline-flex; animation:fadeIn .15s}
+.sheet.error{border-color:var(--danger)!important; box-shadow:0 0 0 2px #ef444440}
+.shake{animation:shake .25s linear}
+@keyframes shake{0%,100%{transform:translateX(0)} 25%{transform:translateX(6px)} 75%{transform:translateX(-6px)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* player modal */
+.pmodal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:70}
+.pmodal.show{display:flex}
+.pcard{width:min(480px,95vw); background:#0f1a31; color:#e5e7eb; border:1px solid #24335a; border-radius:16px; overflow:hidden;
+  position:relative; box-shadow:0 20px 60px #0008}
+.pcard-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;border-bottom:1px solid #22335d}
+.pcard-head .ava{width:64px;height:64px;border-radius:12px}
+.price-chip{background:#102d1dcc;border:1px solid #1f5133;color:#86efac;padding:6px 10px;border-radius:10px;font-weight:700;white-space:nowrap}
+.pactions{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;border-top:1px solid #22335d}
+button,.slot{-webkit-tap-highlight-color:transparent;outline:none}
+/* شارات الكابتن */
+.slot.in{ position: relative; } /* مهم عشان الشارة تتثبت */
+.role{
+  position:absolute; top:6px; right:6px;
+  font-weight:800; font-size:11px; line-height:1;
+  padding:2px 6px; border-radius:999px; box-shadow:0 1px 3px #0006;
+}
+.role-c { background:#f59e0b; color:#111; }   /* C */
+.role-vc{ background:#94a3b8; color:#0b1220; }/* VC */
+/* Responsive adjustments for small screens */
+@media (max-width: 600px) {
+  /* تقليل الحشو حول المحتوى لزيادة العرض المتاح */
+  .container {
+    padding: 12px;
+  }
+  /* تقليل ارتفاع الصفوف والفجوات بينها */
+  .row {
+    gap: 8px;
+    min-height: 90px;
+  }
+  /* تصغير حجم كروت اللاعبين بحيث تتسع أربعة منها في صف واحد */
+  .slot {
+    width: 72px;
+    height: 66px;
+    font-size: 12px;
+  }
+  /* تقليل الحشو الداخلي للكروت */
+  .slot.in {
+    padding: 6px 6px;
+  }
+  /* ضبط شبكة الدكة لعرض أربع خانات دون تجاوز العرض */
+  #bench {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  /* تصغير شارة النادي وخطوطها للموبايل */
+  .club-badge {
+    padding: 2px 6px;
+    font-size: 10px;
+    gap: 4px;
+  }
+  .club-badge img {
+    height: 14px;
+  }
+  /* تصغير خط الترتيب أسفل الدكة */
+  .box-inner .pill {
+    font-size: 11px;
+  }
+  /* موبايل: خلّي الجدول يكمّل عرض الشاشة بدون سكرول */
+@media (max-width: 420px){
+  .sheet{ width:96vw; }                                /* عرض الشيت */
+  .sheet-toolbar .field input,
+  .sheet-toolbar .field select{ min-width:120px; height:34px; } /* مايبقاش في عناصر كبيرة تمنع الاتّساع */
+
+  .table{ max-height:60vh; overflow-y:auto; overflow-x:hidden; } /* امنع السكرول الأفقي */
+  table{ table-layout:fixed; width:100%; }
+
+  thead th, tbody td{ padding:8px 6px; font-size:12px; }         /* هوامش وفونت أصغر سنة */
+
+  /* وزّع الأعمدة بنِسَب – بتغطي اللاعب/النادي/السعر/الإضافة */
+  thead th:nth-child(1){ width:52% !important; }  /* اللاعب */
+  thead th:nth-child(2){ width:24% !important; }  /* النادي */
+
+  /* خَلّي اسم اللاعب يلف ومايكبرش السطر */
+  tbody td{ white-space:normal; word-break:break-word; }
+
+  /* تصغير المكوّنات جوه الخانة */
+  .player-cell{ gap:8px; }
+  .player-cell .ava{ width:40px; height:40px; }
+  .club-badge{ padding:2px 6px; font-size:10px; }
+  .add-btn{ padding:6px 8px; }
+}
+}
+tbody tr { cursor: pointer; transition: background .15s; }
+tbody tr:hover { background: #ffffff08; }
+<!-- … بقية الـCSS … -->
+
+@media (max-width: 600px){
+  /* أخفِ شارة النادي واسم الفريق داخل خانات الملعب والدكة على الموبايل */
+  .slot.in .meta,
+  .slot.in .club-badge {
+    display: none !important;
+  }
+}
+
+/* تعديلات خاصة بالموبايل على خانات اللاعبين */
+@media (max-width: 600px){
+  /* أخفِ شارة الفريق وأية معلومات إضافية داخل خانات الملعب والدكّة */
+  .slot.in .meta,
+  .slot.in .club-badge {
+    display: none !important;
+  }
+
+  /* حرّك سعر اللاعب إلى أعلى اليسار، بحيث يخرج قليلاً خارج الخانة */
+  .slot.in .price {
+    position: absolute;
+    top: -7px;    /* يرفع السعر إلى أعلى خارج الخانة */
+    left: -4px;   /* يجعله يبرز من اليسار */
+    font-size: 8px;
+    padding: 1px 4px;
+    z-index: 2;
+  }
+
+  /* قلّل الحشو العلوى ووسّط الصورة والاسم داخل الخانة */
+  .slot.in {
+    padding-top: 12px;
+    justify-content: center;
+  }
+
+  /* ألغِ ارتفاع الصف السفلى للحفاظ على مساحة الخانة بعد إخفاءه */
+  .slot.in > div:last-child {
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+<!-- … نهاية الـCSS … -->
+/* Footer styling */
+/* Footer styling */
+/* تنسيق الصف السفلي داخل الخانة */
+/* تنسيق خاص بالموبايل */
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="brand">Egypt Fantasy Pro</div>
+    <div class="userbox">
+      <img id="userAvatar" class="u-avatar" src="assets/user-placeholder.png" alt="">
+      <span id="userName">اسم المستخدم</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div style="display:flex;gap:6px;align-items:center">
+      <span class="pill">في الملعب: <span id="onPitch">0</span>/11</span>
+      <span class="pill">مصروف: <span id="spent">0</span>M</span>
+      <span class="pill" id="bankPill">البنك: <span id="bank">100.0</span>M</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" type="button" id="clearBtn">مسح</button>
+      <button class="btn green" type="button" id="saveBtn">حفظ التشكيل</button>
+    </div>
+  </div>
+
+  <div class="pitch" id="pitch">
+    <div class="title">
+      <span>الهجوم</span>
+      <span class="inline-ctrls">
+        <button class="btn ghost" type="button" id="decFWD">−</button>
+        <span id="fwdCount" class="count-chip"></span>
+        <button class="btn ghost" type="button" id="incFWD">+</button>
+      </span>
+    </div>
+    <div class="row" id="row-fwd"></div>
+
+    <div class="title">
+      <span>الوسط</span>
+      <span class="inline-ctrls">
+        <button class="btn ghost" type="button" id="decMID">−</button>
+        <span id="midCount" class="count-chip"></span>
+        <button class="btn ghost" type="button" id="incMID">+</button>
+      </span>
+    </div>
+    <div class="row" id="row-mid"></div>
+
+    <div class="title">
+      <span>الدفاع</span>
+      <span class="inline-ctrls">
+        <button class="btn ghost" type="button" id="decDEF">−</button>
+        <span id="defCount" class="count-chip"></span>
+        <button class="btn ghost" type="button" id="incDEF">+</button>
+      </span>
+    </div>
+    <div class="row" id="row-def"></div>
+
+    <div class="title">الحارس</div>
+    <div class="row" id="row-gk"></div>
+  </div>
+
+  <div class="box" style="margin-top:16px">
+    <div class="box-head"><h3 style="margin:0;font-size:14px;color:#cbd5e1">الدكّة</h3></div>
+    <div class="box-inner">
+      <div id="bench"></div>
+    </div>
+  </div>
+</div>
+<!-- Footer -->
+<footer class="footer">
+  Powered by : AYMAN REFAAT
+</footer>
+<!-- picker -->
+<div id="picker" class="overlay" onclick="if(event.target===this) closePicker()">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="اختر لاعب">
+    <div class="sheet-head">
+      <div class="sheet-toolbar">
+        <button class="btn ghost" type="button" onclick="closePicker()">إغلاق</button>
+        <div id="pickerSlotLabel" class="pill">الملعب</div>
+        <div class="field"><select id="pickerTeam"></select></div>
+        <div class="field">
+          <select id="pickerPos">
+            <option value="">كل المراكز</option>
+            <option value="FWD">مهاجم</option>
+            <option value="MID">وسط</option>
+            <option value="DEF">مدافع</option>
+            <option value="GK">حارس</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1;min-width:200px">
+          <input id="pickerSearch" placeholder="ابحث بالاسم أو النادي..." />
+        </div>
+      </div>
+      <div id="errorBar" class="error-bar"></div>
+    </div>
+    <div class="table">
+      <table>
+        <thead>
+          <tr>
+            <th>اللاعب</th>
+            <th style="width:120px">النادي</th>
+            <th style="width:90px">السعر</th>
+          </tr>
+        </thead>
+        <tbody id="pickerBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- player details modal -->
+<div id="playerModal" class="pmodal" onclick="if(event.target===this) closePlayerModal()">
+  <div class="pcard" role="dialog" aria-modal="true" aria-label="تفاصيل اللاعب">
+    <div class="pcard-head">
+      <div style="display:flex;align-items:center;gap:12px">
+        <img id="pmAvatar" class="ava" src="" alt="">
+        <div>
+          <div id="pmName" style="font-weight:800;font-size:18px"></div>
+          <div id="pmTeam" style="margin-top:4px"></div>
+        </div>
+      </div>
+      <span id="pmPrice" class="price-chip"></span>
+    </div>
+<div class="pactions">
+  <div class="left-actions" style="display:flex;gap:8px;flex-wrap:wrap">
+    <button id="pmSwap" class="btn green" type="button">تبديل</button>
+    <button id="pmDelete" class="btn red" type="button">حذف</button>
+  </div>
+  <div class="right-actions" style="display:flex;gap:8px;flex-wrap:wrap">
+    <button id="pmMakeC" class="btn" type="button">تعيين كابتن</button>
+    <button id="pmMakeVC" class="btn" type="button">تعيين نائب</button>
+  </div>
+
+  <button id="pmCancel" class="btn ghost" type="button">إلغاء</button>
+</div>
+  </div>
+</div>
+
+<script>
+/* ========= أدوات مساعدة ========= */
+const TEAM_SLUG = {
+  "الأهلي":"AlAhly","الزمالك":"zamalek","مودرن سبورت":"modern-sport","إنبي":"Enppi","المصري":"Masry","بيراميدز":"pyramids",
+  "زد":"zed","طلائع الجيش":"طلائع_الجيش",
+  "الاتحاد السكندري":"الاتحاد_السكندري",
+  "الجونة":"ElGouna","حرس الحدود":"HarasElHodoud",
+  "سموحة":"Smouha","البنك الأهلي":"NBE","الاسماعيلي":"Ismaily","فاركو":"Pharco",
+  "المقاولون العرب":"المقاولون",
+  "غزل المحلة":"غزل_المحلة",
+  "سيرامسكا كليوباترا":"سيراميكا",
+  "كهرباء الإسماعيلية":"نادي_كهرباء_الإسماعيلية",
+  "بتروجيت":"Petrojet",
+  "وادي دجلة":"Wadi_Degla",
+  "Al Ahly":"al ahly","Zamalek":"zamalek","Pyramids":"pyramids"
+};
+const TEAM_THEME = {
+  "الأهلي":{color:"#b91c1c", text:"#fff"},
+  "الزمالك":{color:"#fafafa", text:"#111827", ring:"#ef4444"},
+  "بيراميدز":{color:"#1d4ed8", text:"#e5f0ff"},
+  "إنبي":{color:"#0f766e", text:"#ecfeff"},
+  "المصري":{color:"#065f46", text:"#eafff5"},
+  "مودرن سبورت":{color:"#00ec00", text:"#001000"},
+  "زد":{color:"#008200", text:"#111"},
+  "طلائع الجيش":{color:"#334155", text:"#e2e8f0"},
+  "الاتحاد السكندري":{color:"#166534", text:"#eaffef"},
+  "الجونة":{color:"#7c3aed", text:"#f5f3ff"},
+  "حرس الحدود":{color:"#1f2937", text:"#e5e7eb"},
+  "سموحة":{color:"#2563eb", text:"#e7f0ff"},
+  "البنك الأهلي":{color:"#0ea5e9", text:"#00222c"},
+  'الاسماعيلي':           { color:'#FACC15', text:'#0B1220'},     
+  'سيراميكا كليوباترا':   { color:'#7F1D1D', text:'#FFFFFF'},       
+  'غزل المحلة':           { color:'#38BDF8', text:'#0B1220'},        // سماوي
+  'فاركو':                { color:'#EA580C', text:'#0B1220'},            // برتقالي قريب للأحمر
+  'المقاولون العرب':      { color:'#F59E0B', text:'#0B1220'},         // أصفر مش فاقع
+  'كهرباء الإسماعيلية':   { color:'#FACC15', text:'#0B1220'}, // أصفر
+  'وادي دجلة':            { color:'#CA8A04', text:'#0B1220'},        // أصفر غامق شوية
+  'بتروجيت':              { color:'#DC2626', text:'#FFFFFF'}           
+};
+const teamSlug = t => TEAM_SLUG[t] || (t||"").toString().toLowerCase().replace(/\s+/g,'-');
+const getTheme = t => TEAM_THEME[t] || {color:"#2b3e67", text:"#e2e8f0"};
+const fmt = n => (Math.round(n*10)/10).toFixed(1);
+const shortName = full => { const parts=(full||'').trim().split(/\s+/); return (parts.at(-1)||full).toUpperCase(); };
+function badge(team){
+  const th = getTheme(team);
+  const slug = teamSlug(team);
+  const logo = `club-logos/${slug}.png`;
+  return `<span class="club-badge" style="background:${th.color};color:${th.text};border-color:${th.ring||'transparent'}">
+    <img src="${logo}" alt="" onerror="this.style.display='none'"><span style="white-space:nowrap">${team}</span>
+  </span>`;
+}
+function playerImg(p, size=54){
+  const slug = teamSlug(p.team);
+  const src = `players-photos/${slug}/${p.imgId||p.id}.jpg`;
+  return `<img class="ava" style="width:${size}px;height:${size}px" src="${src}"
+    onerror="this.onerror=null;this.src='players-photos/_placeholder.jpg'">`;
+}
+
+/* ========= بيانات اللاعبين ========= */
+const PLAYERS = [
+  { id:'ahly-m-el-shenawy', name:'El Shenawy', team:'الأهلي', pos:'GK',  price:9.0,  imgId:'377088' },
+  { id:'ahly-oufa-shobeir', name:'Oufa Shobeir',  team:'الأهلي', pos:'GK',  price:4.0,  imgId:'961438' },
+
+  { id:'ahly-mohamed-hany', name:'Mohamed Hany', team:'الأهلي', pos:'DEF', price:8.5,  imgId:'296477' },
+  { id:'ahly-yasser-ibrahim', name:'Yasser Ibrahim', team:'الأهلي', pos:'DEF', price:4.0, imgId:'296476' },
+  { id:'ahly-ahmed-ramadan', name:'Ahmed Ramadan', team:'الأهلي', pos:'DEF', price:4.5, imgId:'723258' },
+  { id:'ahly-mostafa-el-aash', name:'Mostafa El Aash', team:'الأهلي', pos:'DEF', price:6.0, imgId:'3206962' },
+  { id:'ahly-yassin-marei', name:'Yassin Marei', team:'الأهلي', pos:'DEF', price:4.5, imgId:'965305' },
+  { id:'ahly-mohamed-shokry', name:'Mohamed Shokry', team:'الأهلي', pos:'DEF', price:4.0, imgId:'964513' },
+  { id:'ahly-achraf-dari', name:'Achraf Dari', team:'الأهلي', pos:'DEF', price:4.0, imgId:'454936' },
+
+  { id:'ahly-ben-romdhane', name:'Ben Romdhane', team:'الأهلي', pos:'MID', price:10.5, imgId:'667355' },
+  { id:'ahly-aliou-dieng', name:'Dieng', team:'الأهلي', pos:'MID', price:7.0, imgId:'313080' },
+  { id:'ahly-ahmed-kouka', name:'Kouka', team:'الأهلي', pos:'MID', price:4.0, imgId:'3206958' },
+  { id:'ahly-afsha', name:'Afsha', team:'الأهلي', pos:'MID', price:4.5, imgId:'386605' },
+  { id:'ahly-ahmed-reda', name:'Ahmed Reda', team:'الأهلي', pos:'MID', price:4.0, imgId:'3500131' },
+  { id:'ahly-zizo', name:'Zizo', team:'الأهلي', pos:'MID', price:13.0, imgId:'288448' },
+  { id:'ahly-trezeguet', name:'Trezeguet', team:'الأهلي', pos:'MID', price:10.5, imgId:'159428' },
+  { id:'ahly-hussein-el-shahat', name:'El Shahat', team:'الأهلي', pos:'MID', price:4.0, imgId:'313251' },
+  { id:'ahly-bencharki', name:'Bencharki', team:'الأهلي', pos:'MID', price:4.0, imgId:'277219' },
+  { id:'ahly-taher-mohamed', name:'Taher Mohamed', team:'الأهلي', pos:'MID', price:4.0, imgId:'309254' },
+
+  { id:'ahly-nejc-gradisar', name:'Gradisar', team:'الأهلي', pos:'FWD', price:9.0, imgId:'959264' },
+  { id:'ahly-mohamed-sherif', name:'Mohamed Sherif', team:'الأهلي', pos:'FWD', price:5.0, imgId:'179845' },
+  { id:'ahly-karim-fouad', name:'Karim Fouad', team:'الأهلي', pos:'FWD', price:4.0, imgId:'848016' },
+
+  { id:'zamalek-m-awwad', name:'Awwad', team:'الزمالك', pos:'GK',  price:4.0, imgId:'297674' },
+  { id:'zamalek-mohamed-sobhi', name:'Sobhi', team:'الزمالك', pos:'GK',  price:4.0, imgId:'718030' },
+
+  { id:'zamalek-h-abdelmaguid', name:'Abdelmaguid', team:'الزمالك', pos:'DEF', price:9.5, imgId:'956067' },
+  { id:'zamalek-omar-gaber', name:'Gaber', team:'الزمالك', pos:'DEF', price:4.0, imgId:'111563' },
+  { id:'zamalek-m-el-wensh', name:'El Wensh', team:'الزمالك', pos:'DEF', price:5.5, imgId:'183203' },
+  { id:'zamalek-m-ismail', name:'Ismail', team:'الزمالك', pos:'DEF', price:4.0, imgId:'887171' },
+  { id:'zamalek-m-bentayg', name:'Bentayg', team:'الزمالك', pos:'DEF', price:4.0, imgId:'1012938' },
+  { id:'zamalek-s-moussadak', name:'Moussadak', team:'الزمالك', pos:'DEF', price:4.0, imgId:'3310594' },
+
+  { id:'zamalek-a-el-said', name:'El Said', team:'الزمالك', pos:'MID', price:4.0, imgId:'296483' },
+  { id:'zamalek-n-dunga', name:'Dunga', team:'الزمالك', pos:'MID', price:5.0, imgId:'426416' },
+  { id:'zamalek-m-shehata', name:'Shehata', team:'الزمالك', pos:'MID', price:4.0, imgId:'911200' },
+  { id:'zamalek-n-maher', name:'Maher', team:'الزمالك', pos:'MID', price:4.0, imgId:'354064' },
+  { id:'zamalek-s-gaafar', name:'Gaafar', team:'الزمالك', pos:'MID', price:4.0, imgId:'736351' },
+  { id:'zamalek-juan-alvina', name:'Alvina', team:'الزمالك', pos:'MID', price:6.5, imgId:'982655' },
+  { id:'zamalek-chico-banza', name:'Banza', team:'الزمالك', pos:'MID', price:4.0, imgId:'379505' },
+  { id:'zamalek-adam-kaied', name:'Kaied', team:'الزمالك', pos:'MID', price:4.0, imgId:'892610' },
+  { id:'zamalek-a-maali', name:'Maâli', team:'الزمالك', pos:'MID', price:4.0, imgId:'3404439' },
+  { id:'zamalek-ahmed-esho', name:'Esho', team:'الزمالك', pos:'MID', price:4.0, imgId:'3384443' },
+
+  { id:'zamalek-s-jaziri', name:'Jaziri', team:'الزمالك', pos:'FWD', price:4.0, imgId:'326920' },
+  { id:'zamalek-n-mansy', name:'Mansy', team:'الزمالك', pos:'FWD', price:4.0, imgId:'3385036' },
+  { id:'zamalek-o-dabbagh', name:'Dabbagh', team:'الزمالك', pos:'FWD', price:4.5, imgId:'395621' },
+  { id:'zamalek-amr-nasser', name:'Nasser', team:'الزمالك', pos:'FWD', price:4.0, imgId:'736350' },
+
+  { id:'pyramids-a-el-shenawy', name:'Ahmed Nasser Abdel Razek El-Shenawy', team:'بيراميدز', pos:'GK',  price:4.0, imgId:'310276' },
+  { id:'pyramids-mahmoud-gad', name:'Mahmoud Gad', team:'بيراميدز', pos:'GK',  price:6.0, imgId:'3161817' },
+
+  { id:'pyramids-m-chibi', name:'Mohamed Chibi', team:'بيراميدز', pos:'DEF', price:4.0, imgId:'364399' },
+  { id:'pyramids-a-sami', name:'Ahmed Sami', team:'بيراميدز', pos:'DEF', price:4.0, imgId:'298387' },
+  { id:'pyramids-mahmoud-marei', name:'Mahmoud Marei', team:'بيراميدز', pos:'DEF', price:5.0, imgId:'419324' },
+  { id:'pyramids-k-hafez', name:'Karim Hafez Ramadan Seifeldin', team:'بيراميدز', pos:'DEF', price:4.0, imgId:'237400' },
+  { id:'pyramids-osama-galal', name:'Osama Galal Hamed Toeima', team:'بيراميدز', pos:'DEF', price:4.0, imgId:'419297' },
+  { id:'pyramids-tarek-alaa', name:'Tarek Alaa', team:'بيراميدز', pos:'DEF', price:4.0, imgId:'3316101' },
+
+  { id:'pyramids-ibrahim-blati', name:'Ibrahim Blati Touré', team:'بيراميدز', pos:'MID', price:6.0, imgId:'147987' },
+  { id:'pyramids-mohanad-lasheen', name:'Mohanad Mostafa Ahmed Abdelmonem', team:'بيراميدز', pos:'MID', price:5.0, imgId:'718050' },
+  { id:'pyramids-walid-el-karti', name:'Walid El Karti', team:'بيراميدز', pos:'MID', price:5.5, imgId:'277584' },
+  { id:'pyramids-a-atef', name:'Ahmed Atef El Sayed', team:'بيراميدز', pos:'MID', price:4.5, imgId:'3338630' },
+  { id:'pyramids-mohamed-reda', name:'Mohamed Reda Mohamed Abouelfetouh', team:'بيراميدز', pos:'MID', price:4.0, imgId:'15' },
+  { id:'pyramids-y-ibrahim', name:'Youssef Ibrahim Obama', team:'بيراميدز', pos:'MID', price:4.0, imgId:'368361' },
+  { id:'pyramids-ahmed-tawfik', name:'Ahmed Tawfik', team:'بيراميدز', pos:'MID', price:4.0, imgId:'284128' },
+  { id:'pyramids-ewerton', name:'Ewerton Paixão Da Silva', team:'بيراميدز', pos:'MID', price:8.0, imgId:'353100' },
+  { id:'pyramids-m-fathi', name:'Mostafa Mohamed Fathi Abdelhamid Mohamed', team:'بيراميدز', pos:'MID', price:6.0, imgId:'298574' },
+  { id:'pyramids-m-zaki', name:'Mostafa Mohamed Zaki Abdelraouf', team:'بيراميدز', pos:'MID', price:4.0, imgId:'3338721' },
+  { id:'pyramids-m-zalaka', name:'Mahmoud Abdel Hafiz Mohamed', team:'بيراميدز', pos:'MID', price:4.0, imgId:'3214109' },
+  { id:'pyramids-abdel-rahman-magdi', name:'Abdel Rahman Magdi', team:'بيراميدز', pos:'MID', price:4.0, imgId:'858533' },
+
+  { id:'pyramids-f-mayele', name:'Fiston Mayele', team:'بيراميدز', pos:'FWD', price:5.0, imgId:'906426' },
+  { id:'pyramids-marwan-hamdy', name:'Marwan Hamdy', team:'بيراميدز', pos:'FWD', price:4.0, imgId:'574956' },
+
+  { id:'al-masry-mahmoud-hamdy', name:'Mahmoud Hamdy Ahmed Ali Abd El Baki', team:'المصري', pos:'GK',  price:4.0, imgId:'694009' },
+  { id:'al-masry-e-tharwat', name:'Essam Tharwat', team:'المصري', pos:'GK',  price:4.0, imgId:'426410' },
+  { id:'al-masry-m-shehata', name:'Mohamed Shehata', team:'المصري', pos:'GK',  price:4.0, imgId:'882135' },
+
+  { id:'al-masry-karim-el-eraki', name:'Karim Hesham El Eraki', team:'المصري', pos:'DEF', price:5.5, imgId:'426314' },
+  { id:'al-masry-m-hashem', name:'Mohamed Hashem', team:'المصري', pos:'DEF', price:4.0, imgId:'296457' },
+  { id:'al-masry-baher-el-mohamady', name:'Baher El Mohamady', team:'المصري', pos:'DEF', price:5.0, imgId:'313169' },
+  { id:'al-masry-amr-el-saadawy', name:'Amr El Saadawy', team:'المصري', pos:'DEF', price:4.0, imgId:'882250' },
+  { id:'al-masry-khaled-sobhi', name:'Khaled Sobhi', team:'المصري', pos:'DEF', price:4.0, imgId:'718016' },
+  { id:'al-masry-ahmed-eid', name:'Ahmed Eid Mohamed Gad El Hak', team:'المصري', pos:'DEF', price:4.0, imgId:'3417835' },
+  { id:'al-masry-a-mansour', name:'Ahmed Ayman Mansور', team:'المصري', pos:'DEF', price:4.0, imgId:'305810' },
+  { id:'al-masry-k-karsenty', name:'Kylian Karsenty', team:'المصري', pos:'DEF', price:4.0, imgId:'3329636' },
+
+  { id:'al-masry-mahmoud-hamada', name:'Mahmoud Hamada', team:'المصري', pos:'MID', price:4.0, imgId:'426253' },
+  { id:'al-masry-mohamed-makhlouf', name:'Mohamed Sayed Makhlouf', team:'المصري', pos:'MID', price:4.0, imgId:'823573' },
+  { id:'al-masry-a-deghmoum', name:'Abderrahim Deghmoum', team:'المصري', pos:'MID', price:4.0, imgId:'677266' },
+  { id:'al-masry-b-mugisha', name:'Bonheur Mugisha', team:'المصري', pos:'MID', price:4.0, imgId:'3203094' },
+  { id:'al-masry-hassan-ali', name:'Hassan Ali', team:'المصري', pos:'MID', price:4.0, imgId:'747711' },
+  { id:'al-masry-hussein-faisal', name:'Hussein Faisal', team:'المصري', pos:'MID', price:4.0, imgId:'1021441' },
+  { id:'al-masry-omar-el-saaiy', name:'Omar El Saaiy', team:'المصري', pos:'MID', price:4.0, imgId:'3316107' },
+  { id:'al-masry-ahmed-ali', name:'Ahmed Ali Amer', team:'المصري', pos:'MID', price:4.0, imgId:'3668179' },
+  { id:'al-masry-mido-gaber', name:'Mohamed Gaber Tawfik', team:'المصري', pos:'MID', price:4.0, imgId:'776978' },
+  { id:'al-masry-karim-bambo', name:'Karim Ahmed Said', team:'المصري', pos:'MID', price:4.0, imgId:'313362' },
+
+  { id:'al-masry-s-mohsen', name:'Salah Mohsen', team:'المصري', pos:'FWD', price:4.0, imgId:'383509' },
+  { id:'al-masry-m-temine', name:'Mounder Temine', team:'المصري', pos:'FWD', price:4.0, imgId:'22' },
+  // حراس المرمى
+{ id:'masr-aly-lotfi',          name:'Aly Lotfy Mostafa',                 team:'زد', pos:'GK',  price:5.0, imgId:'389548' },   // قيمة 662K€≈0.5M2
+{ id:'masr-mohamed-mazzika',    name:'Mohamed Mazzika',                   team:'زد', pos:'GK',  price:4.0, imgId:'3515579' }, // قيمة 5K€≈0.0M3
+
+// المدافعون
+{ id:'masr-mohamed-youssef',    name:'Mohamed Abdel Aziz Youssef',        team:'زد', pos:'DEF', price:4.0, imgId:'3241822' }, // 732K€≈0.5M4
+{ id:'masr-ali-gamal',          name:'Ali Gamal',                         team:'زد', pos:'DEF', price:4.0, imgId:'963403' },  // 905K€≈1.0M5
+{ id:'masr-ahmed-castelo',      name:'Ahmed Fathy',                       team:'زد', pos:'DEF', price:4.0, imgId:'3206954' }, // 550K€≈0.5M6
+{ id:'masr-abdallah-bakri',     name:'Abdallah Bakri',                    team:'زد', pos:'DEF', price:4.0, imgId:'718555' }, // 2.18M€≈2.0M7
+{ id:'masr-ahmed-tarek',        name:'Ahmed Tarek',                       team:'زد', pos:'DEF', price:4.0, imgId:'982342' }, // 465K€≈0.5M8
+{ id:'masr-sameh-ibrahim',      name:'Sameh Ibrahim',                     team:'زد', pos:'DEF', price:4.0, imgId:'3151184' }, // 452K€≈0.5M9
+
+// لاعبو الوسط
+{ id:'masr-ahmed-el-sageery',   name:'Ahmed Abdel Aziz Ibrahim',          team:'زد', pos:'MID', price:4.0, imgId:'882355' }, // 3.12M€≈3.0M10
+{ id:'masr-p-mutumosi',         name:'Peter Mutumosi Zilu',               team:'زد', pos:'MID', price:4.0, imgId:'883011' }, // 2.56M€≈2.5M11
+{ id:'masr-m-magassa',          name:'Maata Magassa',                     team:'زد', pos:'MID', price:4.0, imgId:'3315820' },// 2.48M€≈2.5M12
+{ id:'masr-mahmoud-saber',      name:'Mahmoud Saber',                     team:'زد', pos:'MID', price:4.0, imgId:'1027058' },// 1.59M€≈1.5M13
+{ id:'masr-hamdy-alaa',         name:'Hamdy Alaa Elsayed Mahmoud Abdelmoaty', team:'زد', pos:'MID', price:4.0, imgId:'837023' },// 1.69M€≈1.5M14
+{ id:'masr-ahmed-kabaka',       name:'Ahmed Khaled Gomaa',                team:'زد', pos:'MID', price:4.0, imgId:'3532045' },// 744K€≈0.5M15
+{ id:'masr-abdelrahman-emad',   name:'Abdelrahman Emad Mostafa Mohamed',  team:'زد', pos:'MID', price:4.0, imgId:'911274' },// 378K€≈0.5M16
+{ id:'masr-amara-keita',        name:'Amara Keita',                       team:'زد', pos:'MID', price:4.0, imgId:'3540937' },// 35K€≈0.0M17
+{ id:'masr-mostafa-saad',       name:'Mostafa Saad Abdalla Sayed',        team:'زد', pos:'MID', price:5.0, imgId:'1018704' },// 5.14M€≈5.0M18
+{ id:'masr-ahmed-adel',         name:'Ahmed Adel Elkalamawy',             team:'زد', pos:'MID', price:4.0, imgId:'960626' },// 2.15M€≈2.0M19
+{ id:'masr-youssef-nabih',      name:'Youssef Osama Nabih Mahmoud',       team:'زد', pos:'MID', price:4.0, imgId:'970334' },// 308K€≈0.5M20
+{ id:'masr-mazen-yasser',       name:'Mazen Yasser Ali Zaki',             team:'زد', pos:'MID', price:4.0, imgId:'3517672' },// 270K€≈0.5M21
+{ id:'masr-raafat-khalil',      name:'Raafat Khalil Abdelkader',          team:'زد', pos:'MID', price:4.0, imgId:'3230821' },// 419K€≈0.5M22
+
+// المهاجمون (سترايكرز)
+{ id:'masr-shady-hussein',      name:'Shady Hussein',                     team:'زد', pos:'FWD', price:4.0, imgId:'1017789' },// 2.32M€≈2.5M23
+{ id:'masr-ahmed-atef',         name:'Ahmed Atef',                        team:'زد', pos:'FWD', price:4.5, imgId:'3141902' },// 4.58M€≈4.5M24
+{ id:'masr-hazem-mohamed',      name:'Hazem Mohamed',                     team:'زد', pos:'FWD', price:4.0, imgId:'3584874' }, // 356K€≈0.5M25
+// حراس المرمى
+{ id:'modern-sc-m-abougabal',    name:'Gabaski',                            team:'مودرن سبورت', pos:'GK',  price:4.0, imgId:'349398' }, // 165K€≈0.0M2
+{ id:'modern-sc-k-emad',         name:'Karim Emad',                         team:'مودرن سبورت', pos:'GK',  price:4.0, imgId:'3221821' }, // 25K€≈0.0M3
+{ id:'modern-sc-m-makhlouf',     name:'Mostafa Mohamed Makhlouf Amin',      team:'مودرن سبورت', pos:'GK',  price:4.0, imgId:'3238920' }, // 64K€≈0.0M4
+
+// المدافعون
+{ id:'modern-sc-ali-elfil',      name:'Ali Ahmed Mohab El Fil',             team:'مودرن سبورت', pos:'DEF', price:4.0, imgId:'426323' },  // 1.82M€≈2.0M5
+{ id:'modern-sc-m-rizk',         name:'Mahmoud Rizk',                       team:'مودرن سبورت', pos:'DEF', price:4.0, imgId:'718041' },  // 2.41M€≈2.5M
+{ id:'modern-sc-m-desouki',      name:'Mohamed Ahmed Ali Desouki',          team:'مودرن سبورت', pos:'DEF', price:4.5, imgId:'882368' },  // 4.25M€≈4.5M7
+{ id:'modern-sc-m-shaaban',      name:'Mahmoud Shaaban',                    team:'مودرن سبورت', pos:'DEF', price:4.0, imgId:'305761' },  // 2.07M€≈2.0M8
+{ id:'modern-sc-a-rashdan',      name:'Abdel Rahman Rashdan',               team:'مودرن سبورت', pos:'DEF', price:4.0, imgId:'987202' },  // 484K€≈0.5M9
+{ id:'modern-sc-tarek-mohamed',  name:'Tarek Mohamed',                      team:'مودرن سبورت', pos:'DEF', price:4.0, imgId:'3635769' }, // 27K€≈0.0M10
+
+// خط الوسط
+{ id:'modern-sc-a-fawzi',        name:'Ali Fawzi',                          team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'342733' }, // 3.02M€≈3.0M11
+{ id:'modern-sc-m-helal',        name:'Mohamed Helal',                      team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'328015' }, // 3.01M€≈3.0M12
+{ id:'modern-sc-ghanam-mohamed', name:'Ghanam Mohamed',                     team:'مودرن سبورت', pos:'MID', price:4.5, imgId:'822389' }, // 4.59M€≈4.5M13
+{ id:'modern-sc-emad-hamdi',     name:'Emad Hamdi',                         team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'378887' }, // 1.52M€≈1.5M14
+{ id:'modern-sc-ahmed-youssef',  name:'Ahmed Youssef',                      team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'426234' }, // 1.99M€≈2.0M15
+{ id:'modern-sc-abdelrahman-osama', name:'Abdelrahman Osama Mohamed Masoud', team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'3223915' }, // 2.83M€≈3.0M16
+{ id:'modern-sc-r-metwaly',      name:'Rashad Metwaly',                     team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'3216667' }, // 1.2M€≈1.0M17
+
+// المهاجمون والأجنحة
+{ id:'modern-sc-h-hassan',       name:'Hossam Hassan',                      team:'مودرن سبورت', pos:'FWD', price:4.0, imgId:'342840' }, // 3.01M€≈3.0M18
+{ id:'modern-sc-arnold-eba',     name:'Arnold Adrien Eba Tchebegna',        team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'893233' }, // جناح أيمن (2.86M€≈3.0M)19
+{ id:'modern-sc-m-mamdouh',      name:'Mahmoud Mamdouh Mahmoud',            team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'3340999' },// جناح أيسر، 657K€≈0.5M20
+{ id:'modern-sc-a-redjem',       name:'Adem Redjem',                        team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'570675' }, // جناح أيسر، 1.83M€≈2.0M21
+{ id:'modern-sc-walid-farag',    name:'Walid Ali Farag',                    team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'3208777' },// جناح أيمن، 1.67M€≈1.5M22
+{ id:'modern-sc-m-mossad',       name:'Mohamed Mossad Mohamed',             team:'مودرن سبورت', pos:'MID', price:4.0, imgId:'3361670' },// جناح أيمن، 63K€≈0.0M23
+{ id:'modern-sc-f-okenabirhie',  name:'Fejiri Shaun China Okenabirhie',     team:'مودرن سبورت', pos:'FWD', price:4.0, imgId:'213689' },
+// حراس المرمى
+{ id:'petrojet-o-mohamed',          name:'Omar Mohamed Salah Mohamed',         team:'بتروجيت', pos:'GK',  price:4.0, imgId:'334228' },    // 1.16 م€≈1.0 M3
+{ id:'petrojet-mohamed-khalifa',    name:'Mohamed Adel Amin',                  team:'بتروجيت', pos:'GK',  price:4.0, imgId:'3630599' },  // 105 K€≈0.0 M45
+{ id:'petrojet-abdel-kafi-ragab',   name:'Abdel Kafi Ragab',                   team:'بتروجيت', pos:'GK',  price:4.0, imgId:'3709761' },  // 1 K€≈0.0 M67
+
+// المدافعون
+{ id:'petrojet-m-shedid-kenawi',    name:'Mahmoud Shedid Kenawi',              team:'بتروجيت', pos:'DEF', price:4.0, imgId:'426187' },   // 167 K€≈0.0 M89
+{ id:'petrojet-hady-reyad',         name:'Hady Reyad',                         team:'بتروجيت', pos:'DEF', price:4.0, imgId:'641099' },   // 724 K€≈0.5 M10
+{ id:'petrojet-b-raslan',           name:'Barakat Haggag Raslan',              team:'بتروجيت', pos:'DEF', price:4.0, imgId:'3338678' },  // 1.07 م€≈1.0 M1112
+{ id:'petrojet-tawfik-mohamed',     name:'Tawfik Mohamed',                     team:'بتروجيت', pos:'DEF', price:4.0, imgId:'3668215' },  // 349 K€≈0.5 M13
+{ id:'petrojet-a-bahbah',           name:'Ahmed Bahbah',                       team:'بتروجيت', pos:'DEF', price:4.0, imgId:'614718' },   // 253 K€≈0.5 M14
+{ id:'petrojet-i-el',               name:'Islam Abdullah El Mitwalli Khalil',  team:'بتروجيت', pos:'DEF', price:4.0, imgId:'3385854' },  // 33 K€≈0.0 M15
+{ id:'petrojet-m-atef',             name:'Momen Atef',                         team:'بتروجيت', pos:'DEF', price:4.0, imgId:'426400' },   // 20 K€≈0.0 M16
+{ id:'petrojet-ahmed-ghoneim',      name:'Ahmed Ghoneim',                      team:'بتروجيت', pos:'DEF', price:4.0, imgId:'3583417' },  // 53 K€≈0.0 M17
+
+// لاعبو الوسط
+{ id:'petrojet-mohamed-okasha',     name:'Mohamed Ali Okasha',                 team:'بتروجيت', pos:'MID', price:4.0, imgId:'3457362' },  // 202 K€≈0.0 M18
+{ id:'petrojet-a-hamed',            name:'Adham Hamed',                        team:'بتروجيت', pos:'MID', price:4.0, imgId:'3338649' },  // 375 K€≈0.5 M19
+{ id:'petrojet-a-djoulde',          name:'Amadou Djoulde Bah',                 team:'بتروجيت', pos:'MID', price:4.0, imgId:'3396192' },  // 1.04 م€≈1.0 M20
+{ id:'petrojet-mostafa-el-badry',   name:'Mostafa El Badry',                   team:'بتروجيت', pos:'MID', price:4.0, imgId:'736572' },   // 1.16 م€≈1.0 M21
+{ id:'petrojet-badr-moussa',        name:'Badr Moussa',                        team:'بتروجيت', pos:'MID', price:4.0, imgId:'3159679' },  // 278 K€≈0.5 M22
+{ id:'petrojet-mostafa-el-gamal',   name:'Mostafa El Gamal',                   team:'بتروجيت', pos:'MID', price:4.0, imgId:'743345' },   // 337 K€≈0.5 M23
+{ id:'petrojet-mohamed-ibrahim',    name:'Mohamed Ibrahim',                    team:'بتروجيت', pos:'MID', price:4.0, imgId:'3640763' },  // 56 K€≈0.0 M2425
+
+// المهاجمون (سترايكرز)
+{ id:'petrojet-r-ahmed',            name:'Rasheed Ahmed Abdulrasheed',         team:'بتروجيت', pos:'FWD', price:4.0, imgId:'1024068' }, // 901 K€≈1.0 M2627
+{ id:'petrojet-omar-reda',          name:'Omar Reda',                          team:'بتروجيت', pos:'FWD', price:4.0, imgId:'3628214' },  // 29 K€≈0.0 M28
+{ id:'petrojet-mahmoud-morsi',      name:'Mahmoud Ahmed Morsi',                team:'بتروجيت', pos:'FWD', price:4.0, imgId:'3316109' },  // 17 K€≈0.0 M2930
+{ id:'petrojet-s-mohamed',          name:'Samir Mohamed',                      team:'بتروجيت', pos:'FWD', price:4.0, imgId:'3608811' },
+// حراس المرمى
+{ id:'ghazl-el-mehalla-amer-mohamed',    name:'Amer Mohamed Amer',               team:'غزل المحلة', pos:'GK',  price:4.0, imgId:'426140' },   // 17 K€≈0.0 M0.
+{ id:'ghazl-el-mehalla-ahmed-ibrahim',   name:'Ahmed El Nafarawy',               team:'غزل المحلة', pos:'GK',  price:4.0, imgId:'3151188' },  // 21 K€≈0.0 M1.
+{ id:'ghazl-el-mehalla-ahmed-el-arabi',  name:'Ahmed El Arabi',                  team:'غزل المحلة', pos:'GK',  price:4.0, imgId:'426124' },   // 66 K€≈0.0 M2.
+
+// المدافعون
+{ id:'ghazl-el-mehalla-ahmed-shousha',   name:'Ahmed Hamed Shousha',             team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'426208' },  // 1.42 م€≈1.5 M3.
+{ id:'ghazl-el-mehalla-mohamed-abdelghani', name:'Mohamed Abdelghani',            team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'717969' },  // 2.9 م€≈3.0 M4.
+{ id:'ghazl-el-mehalla-ahmed-el-aash',   name:'Ahmed Mahmoud Abdelkader',         team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'835348' },  // 1.04 م€≈1.0 M5.
+{ id:'ghazl-el-mehalla-a-gamal',         name:'Ahmed Gamal',                      team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'426415' },  // 917 K€≈1.0 M6.
+{ id:'ghazl-el-mehalla-yehia-zakaria',   name:'Yehia Zakaria',                    team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'995237' },  // 303 K€≈0.5 M7.
+{ id:'ghazl-el-mehalla-abdelrahim-amoory', name:'Abdelrahim Amoory',               team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'3628384' }, // 35 K€≈0.0 M8.
+{ id:'ghazl-el-mehalla-karim-saidi',     name:'Karim Saïdi',                      team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'216959' },  // 1 K€≈0.0 M9.
+{ id:'ghazl-el-mehalla-abdelrahman-youssef', name:'Abdelrahman Youssef',          team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'426112' }, // 1 K€≈0.0 M10.
+{ id:'ghazl-el-mehalla-m-magdy',         name:'Mahmoud Magdy Abdelhamid El Moghzi', team:'غزل المحلة', pos:'DEF', price:4.0, imgId:'3655427' }, // 34 K€≈0.0 M; مركزه ظهير أيمن11.
+
+// لاعبو الوسط
+{ id:'ghazl-el-mehalla-mory-toure',      name:'Mory Touré',                       team:'غزل المحلة', pos:'MID', price:4.0, imgId:'3641380' }, // 322 K€≈0.5 M12.
+{ id:'ghazl-el-mehalla-mahmoud-nabil',   name:'Mahmoud Nabil',                    team:'غزل المحلة', pos:'MID', price:4.0, imgId:'1017787' }, // 192 K€≈0.5 M13.
+{ id:'ghazl-el-mehalla-ahmed-said',      name:'Ahmed Said Mohamed',               team:'غزل المحلة', pos:'MID', price:4.0, imgId:'882433' },  // 768 K€≈1.0 M14.
+{ id:'ghazl-el-mehalla-moaz-abdel-salam',name:'Moaz Abdel Salam',                 team:'غزل المحلة', pos:'MID', price:4.0, imgId:'3709934' },// 1 K€≈0.0 M15.
+{ id:'ghazl-el-mehalla-kibou-saidi',     name:'Kibou Saïdi',                      team:'غزل المحلة', pos:'MID', price:4.0, imgId:'3710295' },// 0 €≈0.0 M16.
+{ id:'ghazl-el-mehalla-mohamed-grendo',  name:'Mohamed Abdel Latif',              team:'غزل المحلة', pos:'MID', price:4.0, imgId:'426307' }, // 1.12 م€≈1.0 M17.
+{ id:'ghazl-el-mehalla-r-arfaoui',       name:'Rached Arfaoui',                   team:'غزل المحلة', pos:'MID', price:4.0, imgId:'198137' }, // 742 K€≈0.5 M18.
+{ id:'ghazl-el-mehalla-emad-mayhoub',    name:'Emad Maihoub Mohamed Qorani',       team:'غزل المحلة', pos:'MID', price:4.0, imgId:'3206943' },// 1.1 م€≈1.0 M19.
+{ id:'ghazl-el-mehalla-ashraf-fahmi',    name:'Mohamed Ashraf Fahmy',             team:'غزل المحلة', pos:'MID', price:4.0, imgId:'3384010' },// 357 K€≈0.5 M20.
+{ id:'ghazl-el-mehalla-ashraf-magdy',    name:'Ashraf Magdy',                     team:'غزل المحلة', pos:'MID', price:4.0, imgId:'862785' },  // 602 K€≈0.5 M21.
+{ id:'ghazl-el-mehalla-s-williams',      name:'Peter Sunday Williams',            team:'غزل المحلة', pos:'MID', price:4.0, imgId:'3709935' },// 1 K€≈0.0 M؛ جناح أيسر22.
+
+// المهاجمون (سترايكرز)
+{ id:'ghazl-el-mehalla-solomon-alade',   name:'Solomon Alade',                    team:'غزل المحلة', pos:'FWD', price:4.0, imgId:'3617449' },// 21 K€≈0.0 M23.
+{ id:'ghazl-el-mehalla-a-al-hakim',      name:'Atef Al Hakim',                    team:'غزل المحلة', pos:'FWD', price:4.0, imgId:'3420815' },// 6 K€≈0.0 M24.
+];
+PLAYERS.sort((a,b)=> b.price - a.price);
+const PLAYER_BY_ID = {}; for (const p of PLAYERS) PLAYER_BY_ID[p.id] = p;
+
+/* ========= حالة التطبيق ========= */
+let captainId = null;
+let viceId    = null;
+let SLOT_MAX = { FWD:4, MID:5, DEF:6 };
+let SLOT_MIN = { FWD:1, MID:2, DEF:2 };
+let slotCount = { FWD:3, MID:4, DEF:4 };
+(function normalizeInitial(){
+  const sum = slotCount.FWD + slotCount.MID + slotCount.DEF;
+  if (sum > 10) {
+    const order = ['DEF','MID','FWD']; let over = sum - 10;
+    while (over > 0) { for (const k of order) { if (over===0) break; if (slotCount[k] > SLOT_MIN[k]) { slotCount[k]--; over--; } } }
+  }
+})();
+let bank = 100.0;
+const selected = { GK:[null], DEF:[], MID:[], FWD:[] };
+const bench = [
+  { pos:'FWD', player:null },
+  { pos:'MID', player:null },
+  { pos:'DEF', player:null },
+  { pos:'GK',  player:null },
+];
+const TEAM_CAP = 3;
+
+/* ========= واجهة ========= */
+function updateTop(){
+  const count = (selected.GK.filter(Boolean).length + selected.DEF.filter(Boolean).length + selected.MID.filter(Boolean).length + selected.FWD.filter(Boolean).length);
+  const spent = (100 - bank);
+  document.getElementById('onPitch').textContent = count;
+  document.getElementById('bank').textContent = fmt(bank);
+  document.getElementById('spent').textContent = fmt(spent);
+  const bankPill = document.getElementById('bankPill');
+  bankPill.classList.remove('bank-ok','bank-over');
+  if (bank < 0){ bankPill.classList.add('bank-over'); bankPill.style.background='#7f1d1dcc'; }
+  else { bankPill.classList.add('bank-ok'); bankPill.style.background='#102d1dcc'; }
+}
+function posLabel(pos){ return pos==='GK'?'حارس':pos==='DEF'?'مدافع':pos==='MID'?'وسط':'مهاجم'; }
+
+function emptySlot(label, area, pos, index=null){
+  return `<button class="slot" type="button" data-slot="1" data-area="${area}" data-pos="${pos||''}" data-index="${index??''}">${label}</button>`;
+}
+function setCaptainFor(p){
+  captainId = p?.id || null;
+  if (viceId === captainId) viceId = null; // ممنوع نفس اللاعب
+  renderPitch(); renderBench(); updateTop();
+}
+
+function setViceFor(p){
+  viceId = p?.id || null;
+  if (captainId === viceId) captainId = null;
+  renderPitch(); renderBench(); updateTop();
+}
+function filledSlot(p, area, pos, index=null){
+  const isC  = (p.id === captainId);
+  const isVC = (p.id === viceId);
+  return `<div class="slot in" onclick="openPlayerModal('${area}', '${pos}', ${index===null?'null':index})">
+  ${isC ? '<span class="role role-c">C</span>' : (isVC ? '<span class="role role-vc">VC</span>' : '')}
+  <div class="card-top">
+    ${playerImg(p,54)}
+    <!-- نحفظ السعر هنا ليستعمله CSS لاحقًا -->
+    <div class="pname" data-price="${fmt(p.price)}M">${shortName(p.name)}</div>
+  </div>
+  <div class="slot-footer">
+    <span class="meta">${badge(p.team)}</span>
+    <span class="price">${fmt(p.price)}M</span>
+  </div>
+</div>`;
+}
+function renderLine(containerId, list, maxCount, label, area, pos){
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = '';
+  for (let i=0; i<maxCount; i++){
+    const p = list[i] || null;
+    wrap.insertAdjacentHTML('beforeend', p ? filledSlot(p, area, pos, i) : emptySlot(label, area, pos, i));
+  }
+}
+function renderPitch(){
+  const gkWrap = document.getElementById('row-gk');
+  gkWrap.innerHTML = selected.GK[0] ? filledSlot(selected.GK[0], 'PITCH','GK',0) : emptySlot('أضف حارس','PITCH','GK',0);
+  renderLine('row-def', selected.DEF, slotCount.DEF, 'أضف مدافع','PITCH','DEF');
+  renderLine('row-mid', selected.MID, slotCount.MID, 'أضف لاعب وسط','PITCH','MID');
+  renderLine('row-fwd', selected.FWD, slotCount.FWD, 'أضف مهاجم','PITCH','FWD');
+  document.getElementById('fwdCount').textContent = slotCount.FWD;
+  document.getElementById('midCount').textContent = slotCount.MID;
+  document.getElementById('defCount').textContent = slotCount.DEF;
+}
+function renderBench(){
+  const wrap = document.getElementById('bench');
+  wrap.innerHTML = bench.map((b,i)=>{
+    return b.player
+      ? filledSlot(b.player, 'BENCH', b.pos, i)                 // ← دلوقتي فيها C/VC
+      : emptySlot(`أضف ${posLabel(b.pos)}`, 'BENCH', b.pos, i); // زرار إضافة
+  }).join('');
+}
+
+/* ========= نافذة اختيار ========= */
+let pickerCtx = { area:null, index:null, fixedPos:'', replaceOf:null };
+
+function openPicker(area, index=null, fixedPos=''){
+  let replaceOf=null;
+  if(area==='PITCH'){
+    if(fixedPos==='GK' && selected.GK[0] && index===0) replaceOf = selected.GK[0];
+    if(fixedPos==='DEF' && selected.DEF[index])       replaceOf = selected.DEF[index];
+    if(fixedPos==='MID' && selected.MID[index])       replaceOf = selected.MID[index];
+    if(fixedPos==='FWD' && selected.FWD[index])       replaceOf = selected.FWD[index];
+  }
+  if(area==='BENCH' && bench[index]?.player) replaceOf = bench[index].player;
+
+  pickerCtx = { area, index, fixedPos, replaceOf };
+  document.getElementById('picker').classList.add('show');
+  document.getElementById('pickerSlotLabel').textContent =
+    area==='BENCH' ? `الدكّة • ${posLabel(fixedPos)}` : (replaceOf?'استبدال':'الملعب');
+
+  // فلاتر
+  const teams = Array.from(new Set(PLAYERS.map(p=>p.team)));
+  const teamSel = document.getElementById('pickerTeam');
+  teamSel.innerHTML = `<option value="">كل الفرق</option>` + teams.map(t=>`<option>${t}</option>`).join('');
+  const posSel = document.getElementById('pickerPos'); posSel.value = fixedPos || '';
+  document.getElementById('pickerSearch').value = '';
+  showError(""); applyPickerFilters(); resetPickerScroll();
+}
+function closePicker(){
+  document.getElementById('picker').classList.remove('show');
+  pickerCtx = { area:null, index:null, fixedPos:'', replaceOf:null };
+}
+function resetPickerScroll(){
+  const scroller = document.querySelector('#picker .table'); if (scroller) scroller.scrollTop = 0;
+}
+function applyPickerFilters(){
+  const q    = (document.getElementById('pickerSearch').value||'').trim().toLowerCase();
+  const pos  = document.getElementById('pickerPos').value;
+  const team = document.getElementById('pickerTeam').value;
+
+  let list = PLAYERS.slice();
+  if(pos)  list = list.filter(p=>p.pos===pos);
+  if(team) list = list.filter(p=>p.team===team);
+  if(q)    list = list.filter(p => p.name.toLowerCase().includes(q) || (p.team||'').toLowerCase().includes(q));
+  list.sort((a,b)=> b.price - a.price);
+
+  const tbody = document.getElementById('pickerBody');
+  tbody.innerHTML = list.map(p => `
+    <tr data-rowid="${p.id}">
+      <td>
+        <div class="player-cell">
+          ${playerImg(p,30)}
+          <div>
+            <div style="font-weight:600">${p.name}</div>
+            <div class="meta" style="margin-top:2px">${teamSlug(p.team)} • ${p.pos}</div>
+          </div>
+        </div>
+      </td>
+      <td>${badge(p.team)}</td>
+      <td><span class="price">${fmt(p.price)}M</span></td>
+    </tr>
+  `).join('');
+}
+document.getElementById('pickerBody').addEventListener('click', function(e){
+  const tr = e.target.closest('tr[data-rowid]');
+  if (!tr) return;
+  const id = tr.getAttribute('data-rowid');
+  const p  = PLAYER_BY_ID[id];
+  if (!p){ showError('تعذّر إيجاد اللاعب المختار'); return; }
+  tryAdd(p); // نفس الفنكشن اللي كان بيستدعيها زرار إضافة
+});
+/* ========= قواعد التحقق ========= */
+function lineArray(which) { return selected[which]; }
+function ensureLength(arr, n) { while (arr.length < n) arr.push(null); }
+function countLine(which) { return selected[which].filter(Boolean).length; }
+function totalNonGK(){ return slotCount.FWD + slotCount.MID + slotCount.DEF; }
+function canGrow(which){
+  if (slotCount[which] >= SLOT_MAX[which]) return {ok:false, reason:'وصلت للحد الأقصى لهذا المركز'};
+  if (totalNonGK() + 1 > 10) return {ok:false, reason:'لا يمكن تجاوز 11 لاعب (شامل الحارس)'};
+  return {ok:true};
+}
+function canShrink(which){
+  if (slotCount[which] <= SLOT_MIN[which]) return {ok:false, reason:'وصلت للحد الأدنى لهذا المركز'};
+  const picked = countLine(which);
+  if (slotCount[which] - 1 < picked) return {ok:false, reason:'قلّل اللاعبين أولاً ثم صغّر الخانات'};
+  return {ok:true};
+}
+function showError(msg){
+  const bar = document.getElementById('errorBar');
+  const sheet = document.querySelector('#picker .sheet');
+  if(!msg){ bar.classList.remove('show'); bar.textContent=""; sheet?.classList.remove('error','shake'); return; }
+  bar.textContent = msg; bar.classList.add('show'); sheet?.classList.add('error','shake');
+  setTimeout(()=> sheet?.classList.remove('shake'), 250);
+}
+
+/* ========= إضافة/حذف ========= */
+function pitchCount(){
+  return selected.GK.filter(Boolean).length + selected.DEF.filter(Boolean).length + selected.MID.filter(Boolean).length + selected.FWD.filter(Boolean).length;
+}
+function countTeamOnSquad(){
+  const all = [];
+  if (selected.GK[0]) all.push(selected.GK[0]);
+  all.push(...selected.DEF.filter(Boolean), ...selected.MID.filter(Boolean), ...selected.FWD.filter(Boolean));
+  bench.forEach(b=>{ if(b.player) all.push(b.player); });
+  const map = {}; for(const p of all){ map[p.team] = (map[p.team]||0)+1; } return map;
+}
+function isDuplicate(id){
+  if (selected.GK[0] && selected.GK[0].id===id) return true;
+  if (selected.DEF.some(p=>p && p.id===id)) return true;
+  if (selected.MID.some(p=>p && p.id===id)) return true;
+  if (selected.FWD.some(p=>p && p.id===id)) return true;
+  if (bench.some(b=>b.player && b.player.id===id)) return true;
+  return false;
+}
+function canAdd(p){
+  if (isDuplicate(p.id)) return {ok:false, reason:'لا يمكنك اختيار نفس اللاعب مرتين', code:'dup'};
+  const counts = countTeamOnSquad();
+  let current = counts[p.team]||0;
+  if (pickerCtx.replaceOf && pickerCtx.replaceOf.team===p.team){ /* no net change */ }
+  else { current += 1; }
+  if (current > TEAM_CAP) return {ok:false, reason:`لا يمكنك اختيار أكثر من ${TEAM_CAP} لاعبين من نادي واحد`, code:'cap'};
+  return {ok:true};
+}
+// ——— البحث عن مكان لاعب معيّن ———
+function findPlayerLocById(id){
+  if (selected.GK[0]?.id === id) return { area:'PITCH', pos:'GK', index:0 };
+  for (let i=0;i<selected.DEF.length;i++) if (selected.DEF[i]?.id === id) return { area:'PITCH', pos:'DEF', index:i };
+  for (let i=0;i<selected.MID.length;i++) if (selected.MID[i]?.id === id) return { area:'PITCH', pos:'MID', index:i };
+  for (let i=0;i<selected.FWD.length;i++) if (selected.FWD[i]?.id === id) return { area:'PITCH', pos:'FWD', index:i };
+  for (let i=0;i<bench.length;i++) if (bench[i].player?.id === id) return { area:'BENCH', pos:bench[i].pos, index:i };
+  return null;
+}
+
+// ——— التعيين في مكان محدد ———
+function setAtLoc(loc, player){
+  if (loc.area === 'PITCH'){
+    if (loc.pos === 'GK'){ selected.GK[0] = player; }
+    else { ensureLength(selected[loc.pos], loc.index+1); selected[loc.pos][loc.index] = player; }
+  } else {
+    bench[loc.index].player = player;
+  }
+}
+
+// ——— مبادلة مكانين ———
+function swapLocs(a, b){
+  const aP = getPlayerAt(a.area, a.pos, a.index);
+  const bP = getPlayerAt(b.area, b.pos, b.index);
+  setAtLoc(a, bP);
+  setAtLoc(b, aP);
+}
+function tryAdd(p){
+  if(!pickerCtx || !pickerCtx.area){
+    showError('اختيار غير مكتمل — افتح خانة أولاً ثم اختر اللاعب');
+    return;
+  }
+  const isReplacing = Boolean(pickerCtx.replaceOf);
+
+  // ——— وضع السواب: لو ببدّل و اخترت لاعب موجود أصلاً ———
+  if (isReplacing){
+    const existingLoc = findPlayerLocById(p.id);
+    // لو اختارت نفس اللاعب بالضبط → اقفل وخلاص
+    if (existingLoc && pickerCtx.replaceOf && p.id === pickerCtx.replaceOf.id){
+      closePicker(); return;
+    }
+    if (existingLoc){
+      const targetLoc = { area: pickerCtx.area, pos: pickerCtx.fixedPos, index: pickerCtx.index };
+
+      // لازم نفس المركز في المكانين (ماينفعش تبدّل مدافع بمهاجم وهكذا)
+      const targetPos   = (targetLoc.area==='PITCH')  ? targetLoc.pos   : bench[targetLoc.index].pos;
+      const existingPos = (existingLoc.area==='PITCH')? existingLoc.pos : bench[existingLoc.index].pos;
+      if (targetPos !== existingPos){
+        showError('لا يمكن التبديل بين مراكز مختلفة');
+        return;
+      }
+
+      // نفّذ السواب بدون أي تأثير على البنك
+      swapLocs(targetLoc, existingLoc);
+      renderPitch(); renderBench(); updateTop(); closePicker();
+      return;
+    }
+  }
+
+  // —— الباقي نفس منطق الإضافة العادي —— 
+  // 1) قيد مركز الدكة
+  if (pickerCtx.area==='BENCH' && pickerCtx.fixedPos && pickerCtx.fixedPos!==p.pos){
+    showError('المركز غير مطابق لخانة الدكّة'); return;
+  }
+
+  // 2) الميزانية (هنا الإضافة العادية، السواب فوق بيتخطّى الموضوع ده)
+  let tempBank = bank;
+  if (isReplacing) tempBank += pickerCtx.replaceOf.price;
+
+  // لو بنستبدل لاعب كان عليه شارة، فضّي الشارة
+  if (isReplacing && pickerCtx.replaceOf){
+    const old = pickerCtx.replaceOf;
+    if (old.id === captainId) captainId = null;
+    if (old.id === viceId)    viceId = null;
+  }
+
+  // 3) حد 11 لاعب
+  if (pickerCtx.area !== 'BENCH'){
+    const before = pitchCount();
+    const nextCount = before + (isReplacing ? 0 : 1);
+    if (nextCount > 11){ showError('لا يمكنك تجاوز 11 لاعب في الملعب'); return; }
+  }
+
+  // 4) تكرار وحد النادي
+  const chk = canAdd(p);
+  if (!chk.ok){ showError(chk.reason); return; }
+
+  // 5) الدّكّة
+  if (pickerCtx.area==='BENCH'){
+    const i = pickerCtx.index;
+    bench[i].player = p;
+    bank = tempBank - p.price;
+    renderBench(); updateTop(); closePicker(); return;
+  }
+
+  // 6) استبدال على الملعب (افرغ القديم)
+  if (isReplacing){
+    if (pickerCtx.fixedPos==='GK'){ selected.GK[0] = null; }
+    else { const arrRep = lineArray(pickerCtx.fixedPos); ensureLength(arrRep, pickerCtx.index+1); arrRep[pickerCtx.index] = null; }
+  }
+
+  // 7) إضافة حسب المركز
+  if (p.pos==='GK'){
+    if (selected.GK[0] && !isReplacing){ showError('مكان الحارس ممتلئ'); return; }
+    selected.GK[0] = p;
+  } else {
+    const pos = p.pos;
+    const arr = lineArray(pos);
+    const filled = countLine(pos);
+    const limit  = slotCount[pos];
+
+    if (filled >= limit && !isReplacing){ showError('أماكن ' + posLabel(pos) + ' ممتلئة'); return; }
+
+    if (pickerCtx.index != null){
+      ensureLength(arr, pickerCtx.index + 1);
+      arr[pickerCtx.index] = p;
+    } else {
+      let hole = -1; for (let i=0;i<limit;i++){ if (!arr[i]) { hole = i; break; } }
+      if (hole !== -1){ ensureLength(arr, hole+1); arr[hole] = p; }
+      else { showError('أماكن ' + posLabel(pos) + ' ممتلئة'); return; }
+    }
+  }
+
+  // 8) خصم وتحديث
+  bank = tempBank - p.price;
+  renderPitch(); updateTop(); closePicker();
+}
+function removePlayer(area,pos,index){
+  let p = null;
+
+  if (area==='PITCH'){
+    if (pos==='GK'){ p = selected.GK[0]; selected.GK[0] = null; }
+    if (pos==='DEF'){ p = selected.DEF[index]; selected.DEF[index] = null; }
+    if (pos==='MID'){ p = selected.MID[index]; selected.MID[index] = null; }
+    if (pos==='FWD'){ p = selected.FWD[index]; selected.FWD[index] = null; }
+  } else if (area==='BENCH'){
+    p = bench[index].player;
+    bench[index].player = null;
+  }
+
+  if (p){
+    if (p.id === captainId) captainId = null;
+    if (p.id === viceId)    viceId = null;
+    bank += p.price;
+    renderPitch(); renderBench(); updateTop();
+  }
+}
+/* ========= نافذة تفاصيل اللاعب ========= */
+let modalCtx = { area:null, pos:null, index:null, player:null };
+function getPlayerAt(area,pos,index){
+  if(area==='PITCH'){
+    if(pos==='GK')  return selected.GK[0] || null;
+    if(pos==='DEF') return selected.DEF[index] || null;
+    if(pos==='MID') return selected.MID[index] || null;
+    if(pos==='FWD') return selected.FWD[index] || null;
+  } else if(area==='BENCH'){ return bench[index]?.player || null; }
+  return null;
+}
+function openPlayerModal(area,pos,index){
+  const p = getPlayerAt(area,pos,index);
+  if(!p){ openPicker(area,index,pos); return; } // لو فاضي افتح الاختيار
+  modalCtx = { area, pos, index, player:p };
+
+  const slug = teamSlug(p.team);
+  const imgSrc = `players-photos/${slug}/${p.imgId||p.id}.jpg`;
+  const img = document.getElementById('pmAvatar');
+  img.src = imgSrc; img.onerror = function(){ this.onerror=null; this.src='players-photos/_placeholder.jpg'; };
+  document.getElementById('pmName').textContent = p.name;
+  document.getElementById('pmTeam').innerHTML  = badge(p.team);
+  document.getElementById('pmPrice').textContent = `${fmt(p.price)}M`;
+
+  document.getElementById('pmDelete').onclick = function(){
+    removePlayer(modalCtx.area, modalCtx.pos, modalCtx.index);
+    closePlayerModal();
+  };
+  document.getElementById('pmSwap').onclick = function(){
+    closePlayerModal(); openPicker(modalCtx.area, modalCtx.index, modalCtx.pos);
+  };
+  document.getElementById('pmCancel').onclick = closePlayerModal;
+
+  document.getElementById('playerModal').classList.add('show');
+document.getElementById('pmMakeC').onclick = function(){
+  setCaptainFor(modalCtx.player);
+  closePlayerModal();
+};
+document.getElementById('pmMakeVC').onclick = function(){
+  setViceFor(modalCtx.player);
+  closePlayerModal();
+};
+}
+function closePlayerModal(){ document.getElementById('playerModal').classList.remove('show'); }
+function benchCount(){ return bench.reduce((n,b)=> n + (b.player ? 1 : 0), 0); }
+function benchComplete(){ return bench.every(b => !!b.player); }
+/* ========= حفظ/مسح ========= */
+function isComplete(){
+  const onPitch =
+    selected.GK.filter(Boolean).length +
+    selected.DEF.filter(Boolean).length +
+    selected.MID.filter(Boolean).length +
+    selected.FWD.filter(Boolean).length;
+
+  if (!selected.GK[0]) return {ok:false, reason:'أضف حارس مرمى'};
+  if (onPitch !== 11)  return {ok:false, reason:`التشكيلة غير مكتملة (${onPitch}/11)`};
+  if (!benchComplete()) return {ok:false, reason:`أكمل الدكّة (${benchCount()}/4)`};
+  return {ok:true};
+}
+function currentSquad(){
+  return {
+    bank: +bank,
+    pitch:{
+      GK: selected.GK[0]?.id || null,
+      DEF: selected.DEF.filter(Boolean).map(p=>p.id),
+      MID: selected.MID.filter(Boolean).map(p=>p.id),
+      FWD: selected.FWD.filter(Boolean).map(p=>p.id),
+    },
+    bench: bench.map(b=>({pos:b.pos, id:b.player?.id||null})),
+    roles: { captain: captainId, vice: viceId } // ← جديد
+  };
+}
+function saveSquad(){
+  // لو الميزانية بالسالب: استخدمي مودال الميزانية الموجود
+  if (bank < 0){
+    openBudgetModal(-bank);
+    return;
+  }
+
+  // تحقق التشكيلة والدكة
+  const onPitch =
+    selected.GK.filter(Boolean).length +
+    selected.DEF.filter(Boolean).length +
+    selected.MID.filter(Boolean).length +
+    selected.FWD.filter(Boolean).length;
+
+  const lineupComplete = !!selected.GK[0] && onPitch === 11;
+  const benchOk = benchComplete();
+
+  // الأولوية للتشكيلة: لو ناقصة (حتى لو الدكة ناقصة) نطلع رسالة "التشكيل غير مكتمل"
+  if (!lineupComplete){
+    openInfoModal('التشكيل غير مكتمل');
+    const pitch = document.querySelector('.pitch');
+    pitch?.classList.add('shake');
+    setTimeout(()=> pitch?.classList.remove('shake'), 300);
+    return;
+  }
+
+  // لو التشكيلة كاملة لكن الدكة ناقصة
+  if (!benchOk){
+    openInfoModal('الدكة غير مكتملة');
+    const benchBox = document.getElementById('bench') || document.querySelector('#bench');
+    benchBox?.classList.add('shake');
+    setTimeout(()=> benchBox?.classList.remove('shake'), 400);
+    return;
+  }
+
+  // كل شيء تمام → احفظ
+  const data = currentSquad();
+  localStorage.setItem('squad', JSON.stringify(data));
+
+  const old = document.querySelector('.pill.success'); if(old) old.remove();
+  const ok = document.createElement('span');
+  ok.className='pill success'; ok.textContent='تم حفظ التشكيل ✅';
+  document.querySelector('.toolbar').appendChild(ok);
+  setTimeout(()=>ok.remove(), 2000);
+}
+function openInfoModal(msg){
+  const m = document.getElementById('infoModal');
+  const t = document.getElementById('infoMsg');
+  if (t) t.textContent = msg;
+  m.classList.add('show');
+}
+function closeInfoModal(){
+  document.getElementById('infoModal').classList.remove('show');
+}
+document.getElementById('saveBtn').addEventListener('click', saveSquad);
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(!confirm('مسح التشكيلة الحالية؟')) return;
+  bank = 100.0;
+  selected.GK=[null]; selected.DEF=[]; selected.MID=[]; selected.FWD=[];
+  bench.forEach(b=>b.player=null);
+  renderPitch(); renderBench(); updateTop();
+});
+
+/* ========= تحكم الخانات ========= */
+function decSlots(which){
+  const ok = canShrink(which);
+  if(!ok.ok){ showError(ok.reason); const pitch=document.getElementById('pitch'); pitch.classList.add('shake'); setTimeout(()=>pitch.classList.remove('shake'),250); return; }
+  slotCount[which]--; showError(""); renderPitch();
+}
+function incSlots(which){
+  const ok = canGrow(which);
+  if(!ok.ok){ showError(ok.reason); const pitch=document.getElementById('pitch'); pitch.classList.add('shake'); setTimeout(()=>pitch.classList.remove('shake'),250); return; }
+  slotCount[which]++; showError(""); renderPitch();
+}
+function openBudgetModal(over){
+  const m = document.getElementById('budgetModal');
+  const msg = document.getElementById('budgetMsg');
+  msg.textContent = `انت عديت الميزانية بـ ${fmt(over)}M`;
+  m.classList.add('show');
+}
+function closeBudgetModal(){
+  document.getElementById('budgetModal').classList.remove('show');
+}
+document.getElementById('decFWD').onclick = ()=>decSlots('FWD');
+document.getElementById('incFWD').onclick = ()=>incSlots('FWD');
+document.getElementById('decMID').onclick = ()=>decSlots('MID');
+document.getElementById('incMID').onclick = ()=>incSlots('MID');
+document.getElementById('decDEF').onclick = ()=>decSlots('DEF');
+document.getElementById('incDEF').onclick = ()=>incSlots('DEF');
+
+/* ========= تعامل مع الضغط على الخانات والكروت ========= */
+document.addEventListener('click', (e)=>{
+  const slotBtn = e.target.closest('[data-slot]');
+  if (slotBtn){
+    const area  = slotBtn.getAttribute('data-area');
+    const pos   = slotBtn.getAttribute('data-pos') || '';
+    const index = slotBtn.getAttribute('data-index'); // قد يكون فارغ
+    openPicker(area || 'PITCH', index===""?null:Number(index), pos);
+    return;
+  }
+  const card = e.target.closest('[data-card]');
+  if (card){
+    const area  = card.getAttribute('data-area');
+    const pos   = card.getAttribute('data-pos');
+    const index = Number(card.getAttribute('data-index'));
+    openPlayerModal(area, pos, index);
+  }
+});
+
+/* ========= تشغيل أولي ========= */
+renderPitch(); renderBench(); updateTop();
+
+// فلاتر الاختيار — live
+document.getElementById('pickerTeam').addEventListener('change', applyPickerFilters);
+document.getElementById('pickerPos').addEventListener('change', applyPickerFilters);
+document.getElementById('pickerSearch').addEventListener('input', applyPickerFilters);
+
+// اسم المستخدم/الصورة (اختياري)
+(function setUserOnBuilder(){
+  const nameEl   = document.getElementById('userName');
+  const avatarEl = document.getElementById('userAvatar');
+  let display = 'ضيف';
+  try{
+    const raw = localStorage.getItem('fantasy_user');
+    if (raw) {
+      const u = JSON.parse(raw);
+      const byName = (u.name || '').trim();
+      const byEmail = (u.email || '').split('@')[0];
+      display = byName || byEmail || display;
+    } else {
+      const onlyEmail = localStorage.getItem('fantasy_email');
+      if (onlyEmail) display = String(onlyEmail).split('@')[0];
+    }
+  } catch (_){}
+  nameEl.textContent = display;
+  if (avatarEl){
+    avatarEl.src = 'assets/user-avatar.png';
+    avatarEl.onerror = function(){ this.onerror=null; this.src = 'assets/user-placeholder.png'; };
+  }
+})();
+
+// اعرض فقط أخطاء JS الحقيقية
+window.addEventListener('error', (e)=>{
+  if (!e.error) return; // تجاهل فشل تحميل الموارد
+  const err = document.getElementById('errorBar');
+  err.textContent = 'خطأ: ' + (e.error?.message || e.message || 'غير معلوم');
+  err.classList.add('show');
+});
+</script>
+<div id="budgetModal" class="pmodal" onclick="if(event.target===this) closeBudgetModal()">
+  <div class="pcard" role="dialog" aria-modal="true" aria-label="تجاوز الميزانية">
+    <div class="pcard-head">
+      <div style="font-weight:800;font-size:18px">تنبيه الميزانية</div>
+    </div>
+    <div style="padding:16px">
+      <p id="budgetMsg" style="margin:0">انت عديت الميزانية بـ 0M</p>
+    </div>
+    <div class="pactions">
+      <button class="btn green" type="button" onclick="closeBudgetModal()">تمام</button>
+    </div>
+  </div>
+</div>
+<div id="infoModal" class="pmodal" onclick="if(event.target===this) closeInfoModal()">
+  <div class="pcard" role="dialog" aria-modal="true" aria-label="تنبيه">
+    <div class="pcard-head">
+      <div style="font-weight:800;font-size:18px">تنبيه</div>
+    </div>
+    <div style="padding:16px">
+      <p id="infoMsg" style="margin:0">—</p>
+    </div>
+    <div class="pactions">
+      <button class="btn green" type="button" onclick="closeInfoModal()">تمام</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
